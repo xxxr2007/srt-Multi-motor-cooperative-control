@@ -41,10 +41,11 @@ NAME_CN = {
     "master_slave": "主从控制",
     "cross_coupling": "交叉耦合",
     "deviation_coupling": "偏差耦合",
+    "dcc_dob": "偏差耦合+DOB",        # 复合创新策略：DCC 骨架 + 扰动观测器前馈
 }
-ORDER = ["master_slave", "cross_coupling", "deviation_coupling"]   # 绘图/图例顺序，与 C 侧输出顺序一致
+ORDER = ["master_slave", "cross_coupling", "deviation_coupling", "dcc_dob"]   # 绘图/图例顺序，与 C 侧输出顺序一致
 COLORS = {"master_slave": "#1f77b4", "cross_coupling": "#d62728",
-          "deviation_coupling": "#2ca02c"}                          # 固定配色，三张图里同一策略同色
+          "deviation_coupling": "#2ca02c", "dcc_dob": "#9467bd"}    # 固定配色，所有图里同一策略同色
 
 
 def main():
@@ -66,8 +67,8 @@ def main():
             metrics[row["strategy"]] = row   # 按策略名建索引；数值此时是字符串，用前再转 float
 
     # ---- 图 1：转速跟随 ----
-    fig, axes = plt.subplots(len(ORDER), 1, figsize=(9, 12), sharex=True, sharey=True)
-    # 3 行 1 列（三策略各一格）；sharex/sharey 让三格共用坐标范围，便于纵向直接比较
+    fig, axes = plt.subplots(len(ORDER), 1, figsize=(9, 3.2 * len(ORDER)), sharex=True, sharey=True)
+    # N 行 1 列（每策略一格，行数随 ORDER 自适应）；sharex/sharey 让各格共用坐标范围，便于纵向直接比较
     for ax, s in zip(axes, ORDER):
         for m in range(1, N_MOTORS + 1):
             ax.plot(times[s][m], data[s][m], label=f"电机 {m}")
@@ -94,7 +95,7 @@ def main():
                 color="r", fontsize=9, ha="right")   # 竖线旁加标注，纵向取 y 轴上限的 90% 处
     ax.set_xlabel("时间 (s)")
     ax.set_ylabel("同步误差 max|ωi−ωj| (rad/s)")
-    ax.set_title("三种同步策略的同步误差对比（四电机 C 版仿真）")
+    ax.set_title("四种同步策略的同步误差对比（四电机 C 版仿真）")
     ax.grid(alpha=0.3)
     ax.legend()
     fig.tight_layout()
@@ -114,12 +115,42 @@ def main():
         ax.grid(axis="y", alpha=0.3)                            # 只开横向网格线
         for x, v in enumerate(vals):
             ax.text(x, v, f"{v:.2f}", ha="center", va="bottom", fontsize=9)   # 柱顶标数值
-    fig.suptitle("三种同步策略性能指标对比（四电机 C 版仿真）")
+    fig.suptitle("四种同步策略性能指标对比（四电机 C 版仿真）")
     fig.tight_layout()
     fig.savefig(os.path.join(RES, "metrics_bar.png"), dpi=150)
     plt.close(fig)
 
-    print("plots -> results/speed_tracking.png, sync_error_comparison.png, metrics_bar.png")
+    # ---- 图 4：扰动观测器（DOB）在线估计效果 ----
+    # dob_est_c.csv 由 C 版 dcc_dob 策略额外输出：2 号机（突加负载机）的
+    # 等效扰动真值 d 与观测器估计 d̂；两条线的重合程度就是观测器收敛性的直接证据。
+    dob_t, dob_true, dob_hat = [], [], []
+    with open(os.path.join(RES, "dob_est_c.csv"), encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            dob_t.append(float(row["t_s"]))
+            dob_true.append(float(row["d_true"]))
+            dob_hat.append(float(row["d_hat"]))
+
+    TL_STEP = 1.8     # 电机2 突加负载幅值 N·m（与 C 宏 TL_STEP 对应，仅画参考线用）
+    fig, ax = plt.subplots(figsize=(9, 5))
+    ax.plot(dob_t, dob_true, color="k", lw=1.4,
+            label="等效扰动真值 $d$（负载 + 参数失配项）")
+    ax.plot(dob_t, dob_hat, color=COLORS["dcc_dob"], lw=1.4, ls="--",
+            label="观测器估计 $\\hat{d}$（带宽 g = 100 rad/s）")   # 与 dcc_dob 同色，呼应策略配色
+    ax.axhline(TL_STEP, color="r", ls=":", lw=1)
+    ax.annotate("真实负载突加值 1.8 N·m", xy=(2.6, TL_STEP), xytext=(1.9, 2.15),
+                color="r", fontsize=9, arrowprops=dict(arrowstyle="->", color="r"))
+    ax.axvline(T_LOAD_STEP, color="r", ls=":", lw=1)
+    ax.annotate("电机 2 突加负载", xy=(T_LOAD_STEP, 0.15), color="r", fontsize=9, ha="right")
+    ax.set_xlabel("时间 (s)")
+    ax.set_ylabel("扰动转矩 (N·m)")
+    ax.set_title("扰动观测器（DOB）在线估计效果：2 号机突加负载工况")
+    ax.grid(alpha=0.3)
+    ax.legend(loc="center right")
+    fig.tight_layout()
+    fig.savefig(os.path.join(RES, "dob_observer.png"), dpi=150)
+    plt.close(fig)
+
+    print("plots -> results/speed_tracking.png, sync_error_comparison.png, metrics_bar.png, dob_observer.png")
 
 
 if __name__ == "__main__":   # 仅当作为脚本直接运行时调用 main()，被 import 时不触发

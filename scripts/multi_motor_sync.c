@@ -2,9 +2,13 @@
  * 多电机协作（同步）控制仿真 —— C 语言实现（嵌入式风格）
  *
  * 模型：4 台带参数摄动的电机（转速环 PI + 转矩饱和 + 条件抗积分饱和）
- * 策略：主从 / 交叉耦合(CCC) / 惯量加权偏差耦合(DCC)
+ * 策略：主从 / 交叉耦合(CCC) / 惯量加权偏差耦合(DCC) / DCC+扰动观测器(DOB)前馈
+ *       —— 第 4 种为本项目的复合创新策略：耦合骨架之上叠加扰动观测器，
+ *          把"纯反馈"升级为"前馈+反馈"，对负载扰动与参数摄动双重鲁棒。
  * 输出：results/sim_data_c.csv  降采样转速数据（供 plot_results.py 画图）
  *       results/metrics_c.csv   指标汇总
+ *       results/dob_est_c.csv   dcc_dob 策略 2 号机的扰动估计值与等效真值
+ *                               （验证观测器收敛性，供画 DOB 效果图）
  *
  * 电机台数：只改 N_MOTOR 和 J_MOTOR/B_MOTOR 两张参数表即可扩展，
  *           全部循环、积分器、CSV 输出均按 N_MOTOR 自动适配。
@@ -54,6 +58,14 @@ static const double B_MOTOR[N_MOTOR] = { 0.0012, 0.0011, 0.0013, 0.00115 };/* �
 
 #define SYNC_KP        0.6            /* 同步补偿比例增益 Ks       */
 #define SYNC_KI        5.0            /* 同步补偿积分增益 Ksi      */
+
+/* ---- DCC+DOB 复合策略（创新点）专用参数 ---- */
+#define DOB_G          100.0          /* 扰动观测器带宽 rad/s（≈15.9 Hz，即 g/(2π)）。
+                                       * 整定依据（三条都要满足）：
+                                       * ① 离散稳定：显式欧拉要求 g·DT≪1，此处 100×1e-4=0.01，余量充足；
+                                       * ② 跟得上扰动：约为最快扰动（电机3 正弦负载 2 Hz≈12.6 rad/s）的 8 倍，
+                                       *    该频率下幅值衰减 <1%、相位滞后 atan(12.6/100)≈7°，估计几乎不失真；
+                                       * ③ 不与转速环打架：经验取环带宽的 5~10 倍，前馈/反馈时标分离。 */
 
 #define OUT_EVERY      100            /* CSV 降采样步数（100×1e-4 s = 10 ms 记一行） */
 #define REC_THRESHOLD  0.5            /* 恢复判定阈值 rad/s（误差回落到此值内算恢复） */
@@ -250,6 +262,107 @@ static void run_deviation_coupling(FILE *fp)
     }
 }
 
+/*====================== 创新策略：DCC + 扰动观测器(DOB)前馈 ======================*/
+/* 思想：前三种策略都是"纯反馈"——误差已经出现了，转速环 PI 才被动调节；
+   本策略给每台电机再配一个扰动观测器，在线估计"集总扰动"并前馈抵消：
+   不等误差出现就先把扰动补掉，反馈环只负责收拾估计残差。
+   耦合骨架沿用 DCC（三种经典策略中最强者），区别仅在转矩指令多了前馈项。
+
+   ① 集总扰动的定义：用名义参数 Jn、Bn 改写机械方程
+        Jn·dω/dt = Te − Bn·ω − d
+      对比真实方程 J·dω/dt = Te − B·ω − TL，可得
+        d = TL + (J−Jn)·dω/dt + (B−Bn)·ω
+      —— 真实负载和 ±10% 参数摄动的影响全被"吸"进 d 里，
+         所以估计并抵消 d，等价于对负载扰动和参数失配同时鲁棒。
+
+   ② 观测器构造（关键是避开微分）：由上式反解 d = Te − Bn·ω − Jn·dω/dt，
+      直接对转速做数值微分会放大噪声、工程上不可用，故串联一阶低通 Q(s)=g/(s+g)：
+        d̂ = Q(s)·(Te − Bn·ω − Jn·s·ω)
+      利用恒等式 s·Q(s) = g·s/(s+g) = g·(1 − Q(s)) 把微分项消掉：
+        d̂ = Q(s)·(Te − Bn·ω) − Jn·g·(1 − Q(s))·ω
+          = Q(s)·(Te + (g·Jn − Bn)·ω) − g·Jn·ω
+      写成状态方程（x 为滤波器状态），即下面的代码实现：
+        u = Te + (g·Jn − Bn)·ω        （滤波器输入）
+        ẋ = g·(u − x)                  （一阶惯性环节）
+        d̂ = x − g·Jn·ω                 （读出方程）
+      稳态自检（s→0 时 Q→1、x→u）：d̂ = Te − Bn·ω = d（此时 dω/dt=0）✓ 无静差。
+
+   ③ 两条实现纪律（都是踩坑点）：
+      - 观测器输入 Te 必须取【限幅后实际施加】的转矩：饱和期间若拿限幅前的
+        PI 原始输出喂观测器，观测器会以为电机输出了并没有输出的转矩，
+        d̂ 被系统性估偏 —— 这相当于观测器层面的"抗饱和"；
+      - 前馈用【上一拍】的 d̂：本拍转矩还没施加，本拍 d̂（依赖本拍 Te）根本
+        算不出来，硬用会构成代数环；用上一拍估计只引入 0.1 ms 延迟，
+        相对观测器时间常数 1/g = 10 ms 可以忽略。
+
+   IN: fp 已打开的转速 CSV 句柄（与三种经典策略同格式、同降采样）
+   附带输出: results/dob_est_c.csv —— 2 号机（突加负载机）的 d̂ 与等效真值 d，
+             供 plot_results.py 画观测器收敛效果图。 */
+static void run_dcc_dob(FILE *fp)
+{
+    double w[N_MOTOR] = { 0 };                    /* 四台电机转速状态，从静止起步 */
+    double integ[N_MOTOR] = { 0 };                /* 四路转速环 PI 积分器 */
+    double ipair[N_MOTOR][N_MOTOR] = { { 0 } };   /* 成对同步积分器（DCC 骨架，同前） */
+    double x[N_MOTOR] = { 0 };                    /* 四路 DOB 滤波器状态 x */
+    double dhat[N_MOTOR] = { 0 };                 /* 四路扰动估计 d̂（初值 0：静止空载无扰动） */
+    double tl[N_MOTOR];
+    double j_nom = 0.0, b_nom = 0.0;              /* 名义参数：取全组均值，N_MOTOR 通用化 */
+    FILE *fpd;                                    /* dob_est_c.csv 句柄（观测器效果存档） */
+    int k, i, j;
+
+    for (i = 0; i < N_MOTOR; i++) { j_nom += J_MOTOR[i]; b_nom += B_MOTOR[i]; }
+    j_nom /= N_MOTOR;   /* Jn = 0.01025 kg*m^2：观测器只需"差不多"的名义模型， */
+    b_nom /= N_MOTOR;   /* Bn = 0.0011875 N*m*s/rad；失配部分由 d 一并兜底估计 */
+
+    fpd = fopen("results/dob_est_c.csv", "w");
+    if (fpd) fprintf(fpd, "t_s,d_true,d_hat\n");  /* 打不开就只跳过存档，不影响仿真本体 */
+
+    for (k = 0; k < N_STEPS; k++) {
+        double t = k * DT;
+        load_torque(t, tl);
+        for (i = 0; i < N_MOTOR; i++) {
+            double wsum = 0.0, comp = 0.0, te_pi, te, u, w_old, w_new;
+            for (j = 0; j < N_MOTOR; j++)
+                if (j != i) wsum += J_MOTOR[j];   /* DCC 权重分母 Σ_{j≠i} J_j（同前） */
+            for (j = 0; j < N_MOTOR; j++) {
+                if (j == i) continue;
+                {
+                    double wj = J_MOTOR[j] / wsum;    /* 惯量加权系数 w_ij */
+                    double dev = w[i] - w[j];         /* 成对偏差 ω_i − ω_j */
+                    ipair[i][j] += dev * DT;
+                    comp -= wj * (SYNC_KP * dev + SYNC_KI * ipair[i][j]);
+                }
+            }
+            te_pi = torque_pi(speed_ref(t) + comp, w[i], &integ[i]);  /* 限幅后的 PI 转矩 */
+            te = te_pi + dhat[i];                 /* 前馈：用【上一拍】的 d̂ 抵消扰动 */
+            if (te > TORQUE_LIMIT) te = TORQUE_LIMIT;          /* 前馈后仍可能触限， */
+            else if (te < -TORQUE_LIMIT) te = -TORQUE_LIMIT;   /* 必须重新钳位 */
+
+            /* ---- 观测器更新（严格按推导的三行来） ---- */
+            w_old = w[i];
+            w_new = plant_step(w_old, te, tl[i], i);          /* 真实对象推进一拍 */
+            u = te + (DOB_G * j_nom - b_nom) * w_old;         /* 滤波器输入 u */
+            x[i] += DT * DOB_G * (u - x[i]);                  /* ẋ=g(u−x) 的欧拉积分 */
+            dhat[i] = x[i] - DOB_G * j_nom * w_new;           /* d̂ = x − g·Jn·ω（用新转速对齐同拍） */
+            w[i] = w_new;
+
+            /* 2 号机的观测器效果存档：等效真值由 d = Te − Bn·ω_old − Jn·Δω/DT 反解，
+               离散意义下严格成立；它与真实负载之差正是参数失配项的贡献 */
+            if (fpd && i == 1 && k % OUT_EVERY == 0) {
+                double d_true = te - b_nom * w_old
+                              - j_nom * (w_new - w_old) / DT;
+                fprintf(fpd, "%.4f,%.4f,%.4f\n", t, d_true, dhat[i]);
+            }
+        }
+        se_hist[k] = sync_error(w);
+        w2_hist[k] = w[1];
+        if (k % OUT_EVERY == 0)
+            for (i = 0; i < N_MOTOR; i++)
+                fprintf(fp, "%.4f,dcc_dob,%d,%.4f\n", t, i + 1, w[i]);
+    }
+    if (fpd) fclose(fpd);   /* 只关成功打开的句柄 */
+}
+
 /*====================== 指标评价 ======================*/
 /* 依据缓存在 se_hist / w2_hist 里的本次仿真轨迹，算出四项指标
    IN : name 策略名（写进结构体，便于最后成表输出）
@@ -290,11 +403,11 @@ static Metrics evaluate(const char *name)
 }
 
 /*====================== 主流程 ======================*/
-#define N_STRATEGY 3                  /* 策略数量（主从/CCC/DCC），与电机台数无关 */
+#define N_STRATEGY 4                  /* 策略数量（主从/CCC/DCC/DCC+DOB），与电机台数无关 */
 int main(void)
 {
     FILE *fp;
-    Metrics ms[N_STRATEGY];           /* 三个策略各存一份指标 */
+    Metrics ms[N_STRATEGY];           /* 四个策略各存一份指标 */
     int i;
 
     _mkdir("results");   /* 已存在则返回 -1，此处忽略即可 */
@@ -310,6 +423,8 @@ int main(void)
     ms[1] = evaluate("cross_coupling");
     printf("run deviation_coupling ...\n"); run_deviation_coupling(fp);
     ms[2] = evaluate("deviation_coupling");
+    printf("run dcc_dob ...\n");            run_dcc_dob(fp);
+    ms[3] = evaluate("dcc_dob");
     fclose(fp);                             /* 转速数据已全部落盘 */
 
     /* ---- 指标写 CSV ---- */
