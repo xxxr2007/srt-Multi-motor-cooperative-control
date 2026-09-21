@@ -11,7 +11,7 @@ C 程序负责计算，输出：
   results/metrics_bar.png
 
 运行（在仓库根目录）：
-  python scripts/plot_results.py
+  python electrical/c/plot_results.py
 """
 
 import csv                        # 用 DictReader 按列名解析 C 版输出的 CSV
@@ -25,9 +25,9 @@ import matplotlib.pyplot as plt   # 必须在 use("Agg") 之后导入，否则�
 plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei"]  # 中文显示
 plt.rcParams["axes.unicode_minus"] = False   # 负号用 ASCII '-'，否则部分中文字体下负号会显示成方框
 
-HERE = os.path.dirname(os.path.abspath(__file__))   # 本脚本目录：.../srtfangzhen/scripts
-ROOT = os.path.dirname(HERE)                        # 仓库根目录：.../srtfangzhen
-RES = os.path.join(ROOT, "results")                 # 结果目录：.../srtfangzhen/results
+HERE = os.path.dirname(os.path.abspath(__file__))   # 本脚本目录：.../仓库根/electrical/c
+ROOT = os.path.dirname(os.path.dirname(HERE))       # 仓库根目录：再上两级（c → electrical → 根）
+RES = os.path.join(ROOT, "results")                 # 结果目录：.../仓库根/results
 # 这样拼绝对路径，脚本在任意工作目录下执行都能找到 results/，不受 cwd 影响
 
 # 画图参数（与 params.json / C 宏对应，仅用于标注参考线）

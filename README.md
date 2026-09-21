@@ -1,4 +1,4 @@
-# SRT 仿真项目（srtfangzhen）
+﻿# SRT 仿真项目（srt-Multi-motor-cooperative-control）
 **多电机协作控制仿真研究**：面向多电机驱动的移动装备（多轮独立电驱动底盘、多执行机构作业平台等），
 研究参数不一致与负载突变条件下多台电机的**转速同步控制**，在对比三种经典策略的基础上，
 提出并验证了"偏差耦合 + 扰动观测器(DOB)前馈"复合创新策略。
@@ -40,14 +40,14 @@
 负载按正弦规律周期性起伏，对应 t≥2.0s 电机 3 施加 0.4·sin(2π·2t) N·m（2 Hz）。
 
 -->
-**当前形态：C 语言仿真内核 + Python 画图。** 仿真主体是 `scripts/multi_motor_sync.c`
+**当前形态：C 语言仿真内核 + Python 画图。** 仿真主体是 `electrical/c/multi_motor_sync.c`
 （嵌入式风格：静态数组、零动态内存、模块化函数，参数用宏集中管理），
-编译产物输出 CSV；`scripts/plot_results.py` 只读 CSV 出图。
+编译产物输出 CSV；`electrical/c/plot_results.py` 只读 CSV 出图。
 这样仿真能力可以平移到嵌入式/实时平台（STM32 等用同一套内核思路）。
 <!--
 
 ### 仿真内核
-scripts/multi_motor_sync.c，承担多电机同步控制的全部仿真计算。
+electrical/c/multi_motor_sync.c，承担多电机同步控制的全部仿真计算。
 
 ### 嵌入式风格
 静态数组、零动态内存、模块化函数、参数用宏集中管理，与单片机开发约束一致。
@@ -74,6 +74,26 @@ C 程序编译运行后输出 CSV，plot_results.py 只读 CSV 出图，绘图�
   周期负载段的同步波动也几乎被完全抹平（见 `results/dob_observer.png`）。
 - 由 3 台扩展到 4 台（新增 4 号机渐变斜坡负载）后三种经典策略排序不变、指标仅小幅变化，
   初步验证了策略的可扩展性；CCC 与 DCC 的差异仍需更恶劣工况区分。
+
+## 创新点二：弹性传动链双惯量对象（方案 A，机电协同）
+
+仿真内核支持把"刚性直连"升级为**电机侧 J₁ — 联轴器 (Ks, Ds) — 负载侧 J₂** 的双惯量模型
+（`electrical/c/multi_motor_sync.c` 的 `plant_step2()`）。机械组在 `mech_params.json` 里填入
+`coupling.Ks` 即自动启用；未交付时内核退回刚性模型，**验收基线（上表）不受影响**。
+
+弹性模式下 DOB 的集总扰动 d 会把联轴器弹性扭矩一并吸收——前提是观测器带宽覆盖谐振频率
+ω_n = √(Ks·(1/J₁+1/J₂)) 的 2~5 倍。样例演示（g=100 rad/s 固定）：
+
+| 联轴器档位 | Ks (N·m/rad) | ω_n (rad/s) | g/ω_n | DCC+DOB RMS (rad/s) | 结论 |
+|---|---|---|---|---|---|
+| （刚性基准） | — | — | — | **0.041** | 验收基线 |
+| 中等弹性 | 200 | 199 | 0.50 | 0.670 | DOB 压不住谐振，全面恶化 |
+| 软弹性 | 12 | 49 | 2.05 | 2.710 | 谐振落进转速环带宽内，环路激励谐振——**不是越软越好** |
+| 近刚性 | 2000 | 629 | 0.16 | 0.624 | 谐振高于环路带宽，峰值/跌落改善但 RMS 受欠阻尼振荡拖累 |
+
+这张表就是"**带宽-刚度匹配**"协同设计准则的实证：机械刚度决定控制带宽需求，
+控制带宽反过来约束联轴器选型。Ks 到手后下一轮迭代方向：陷波滤波器（notch @ ω_n）
+或 DOB 带宽调度，把第三行的 RMS 压回基线附近。
 <!--
 ### 同步误差 RMS
 全程同步偏差的均方根，越小表示转速跟得越齐；耦合类策略较主从降低约 48%。
@@ -96,17 +116,29 @@ C 程序编译运行后输出 CSV，plot_results.py 只读 CSV 出图，绘图�
 ### 遗留问题
 交叉耦合与偏差耦合的差异仍需更恶劣的工况才能区分。
 -->
-## 目录结构
+## 目录结构（按机械/电控两组划界）
 
 ```
-srtfangzhen/
-├─ docs/       方案与公式推导（control_scheme.md）
-├─ models/     MATLAB：multi_motor_sync_matlab.m 参照实现；run_c_sim.m 一键调 C 版仿真+后处理
-├─ scripts/    multi_motor_sync.c   C 版仿真内核（主入口）
-│              plot_results.py     读 CSV 出图
-├─ data/       params.json（参数参考；C 版参数在 .c 文件顶部宏区）
-├─ build/      编译产物（已 gitignore）
-└─ results/    输出：转速曲线、同步误差对比、指标柱状图、CSV 数据
+srt-multi-motor/
+├─ README.md        项目说明（本文件）
+├─ data/            ★ 两组公共接口区（参数单一数据源）
+│   ├─ mechanical/  机械组交付参数 mech_params.json（机械组唯一写入口）
+│   ├─ electrical/  电控组控制参数 ctrl_params.json（电控组唯一写入口）
+│   ├─ params.json  合并产物（自动生成，勿手改）
+│   └─ acceptance.json  验收规则（压到什么程度算过）
+├─ mechanical/      ★ 机械组地盘
+│   ├─ cad/         CATIA 模型（走 Git LFS，勿直接大文件提交）
+│   ├─ params/      motor_params.xlsx 机械组手填表（转 json 后生效）
+│   └─ docs/        plant_model.md 参数交接单、机构简图等机械文档
+├─ electrical/      ★ 电控组地盘
+│   ├─ c/           C 仿真内核（主入口）+ merge_params.py + check_acceptance.py + plot_results.py
+│   ├─ simulink/    Simulink 仿真模型（.slx，走 Git LFS）
+│   └─ matlab/      MATLAB：multi_motor_sync_matlab.m 参照实现；run_c_sim.m 一键调 C 版仿真；
+│                   params_setup.m Simulink 参数装载脚本
+├─ docs/            公共文档：control_scheme.md 方案与公式推导；collaboration.md 两组协同机制；
+│                   weekly_tasks.md 每周任务；开题/结题材料
+├─ build/           编译产物 + 参数头文件（已 gitignore）
+└─ results/         输出：转速曲线、同步误差对比、指标柱状图、CSV 数据（已 gitignore）
 ```
 
 ## 环境依赖
@@ -135,20 +167,28 @@ srtfangzhen/
 ## 快速开始
 
 ```bash
+# 0. 合并参数（机械组/电控组改过参数后必须重跑这一步）
+python electrical/c/merge_params.py
+#  -> data/params.json + build/params_generated.h（C 内核编译时自动读取）
+
 # 1. 编译（仓库根目录执行）
-gcc -O2 -o build/multi_motor_sync.exe scripts/multi_motor_sync.c -lm
+gcc -O2 -o build/multi_motor_sync.exe electrical/c/multi_motor_sync.c -lm
 
 # 2. 运行（必须在仓库根目录，输出走相对路径）
 build\multi_motor_sync.exe
 #  -> results/sim_data_c.csv + results/metrics_c.csv，控制台打印指标汇总
 
 # 3. 画图
-python scripts/plot_results.py
+python electrical/c/plot_results.py
 #  -> results/speed_tracking.png / sync_error_comparison.png / metrics_bar.png
+
+# 4. 验收判定（效果压到什么程度算过）
+python electrical/c/check_acceptance.py          # 加 --record 可累计迭代历史
 ```
 
-改参数：C 版改 `multi_motor_sync.c` 顶部"参数区"的宏（与 `data/params.json` 数值一一对应），
-改完重新编译。
+改参数：**不要直接改 `multi_motor_sync.c`**。机械参数写
+`data/mechanical/mech_params.json`，控制参数写 `data/electrical/ctrl_params.json`，
+然后重跑 `merge_params.py` + 重新编译即可（详见 `docs/collaboration.md`）。
 <!--
 ### 快速开始
 三步完成一次完整仿真：编译、运行、画图，均在仓库根目录执行。
@@ -182,4 +222,6 @@ C 版参数在 multi_motor_sync.c 顶部"参数区"的宏定义中，与 data/pa
 | 2026-09-18 | 全代码补齐逐行注释；新增 models/run_c_sim.m，MATLAB 一键调 C 版仿真并读结果 |
 | 2026-09-18 | 仿真由 3 电机扩展为 4 电机（新增 4 号机渐变斜坡负载工况），代码按 N_MOTOR 通用化，公式与文档同步更新 |
 | 2026-09-19 | 新增复合创新策略 DCC+DOB（偏差耦合骨架 + 扰动观测器前馈），RMS/峰值/恢复时间/跌落四项指标全面最优；新增 `results/dob_observer.png` 观测器在线估计效果图 |
+| 2026-09-21 | 建立两组参数分层与验收机制：mech/ctrl 参数分源合并、绝对阈值+相对提升+不恶化+停止条件四类规则自动判定；目录按机械/电控两组重排（`electrical/c|simulink|matlab`、`mechanical/cad|params|docs`）；新增机械组 xlsx 手填表与转换脚本；CAD 文件走 Git LFS；迁移后全流程重跑，指标与迁移前完全一致 |
+| 2026-09-21 | 机械组建模工具定为 **CATIA**（交接单/模板/LFS 规则同步更新）；新增创新点二——**方案 A 弹性传动链双惯量被控对象**（`plant_step2`）：Ks>0 自动启用、未交付退回刚性保证基线不变；merge 脚本新增机电耦合（g vs ω_n）与离散精度（ω_n·dt）双校验；弹性样例演示完成（Ks=200/12/2000 三档），证实"带宽-刚度匹配"协同设计准则 |
 

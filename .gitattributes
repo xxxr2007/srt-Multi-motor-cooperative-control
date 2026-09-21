@@ -15,3 +15,15 @@
 *.mp4 filter=lfs diff=lfs merge=lfs -text
 *.mat filter=lfs diff=lfs merge=lfs -text
 *.mldatx filter=lfs diff=lfs merge=lfs -text
+*.sldprt filter=lfs diff=lfs merge=lfs -text
+*.sldasm filter=lfs diff=lfs merge=lfs -text
+*.slddrw filter=lfs diff=lfs merge=lfs -text
+*.sldlfp filter=lfs diff=lfs merge=lfs -text
+*.sldd   filter=lfs diff=lfs merge=lfs -text
+
+*.CATPart filter=lfs diff=lfs merge=lfs -text
+*.CATProduct filter=lfs diff=lfs merge=lfs -text
+*.CATDrawing filter=lfs diff=lfs merge=lfs -text
+*.cgr filter=lfs diff=lfs merge=lfs -text
+*.CATMaterial filter=lfs diff=lfs merge=lfs -text
+

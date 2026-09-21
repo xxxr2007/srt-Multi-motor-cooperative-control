@@ -6,9 +6,10 @@ function run_c_sim()
 %       然后 C 程序要求工作目录在仓库根目录（输出走相对路径 results/），
 %       跑完自动把工作目录切回来；最后读 CSV 画同步误差对比图、打印指标表。
 %
-% 想改参数：去改 scripts/multi_motor_sync.c 顶部的宏区，删掉旧 exe 再跑本函数即可。
+% 想改参数：去改 electrical/c/merge_params.py 的两个 json 源（或删掉 build/ 重跑合并），
+% 删掉旧 exe 再跑本函数即可。
 
-    root = fileparts(fileparts(mfilename('fullpath')));   % models/ 的上一级 = 仓库根目录
+    root = fileparts(fileparts(fileparts(mfilename('fullpath'))));   % 电气脚本在 electrical/matlab/，上三级 = 仓库根
     exe  = fullfile(root, 'build', 'multi_motor_sync.exe');
 
     % ---- 1. 没有 exe 就现场编译（gcc 路径按本机实际位置写死，找不到再退回 PATH） ----
@@ -19,7 +20,7 @@ function run_c_sim()
         end
         fprintf('未找到 exe，正在用 gcc 编译 ...\n');
         cmd = sprintf('"%s" -O2 -o "%s" "%s" -lm', gcc, exe, ...
-                      fullfile(root, 'scripts', 'multi_motor_sync.c'));
+                      fullfile(root, 'electrical', 'c', 'multi_motor_sync.c'));
         if system(cmd) ~= 0
             error('编译失败，请检查 gcc 路径是否正确。');
         end

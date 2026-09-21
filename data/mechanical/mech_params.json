@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "version": "v1",
+    "delivered_by": "待填：姓名",
+    "date": "2026-09-21",
+    "source": "待填：参数来源",
+    "note": "本文件由 mechanical/params/motor_params.xlsx 经 xlsx_to_mech_json.py 转换生成"
+  },
+  "motor": {
+    "model": "待填：电机型号",
+    "J": [
+      0.01,
+      0.011,
+      0.0095,
+      0.0105
+    ],
+    "J_nominal": 0.01025,
+    "B": [
+      0.0012,
+      0.0011,
+      0.0013,
+      0.00115
+    ],
+    "B_source": "待填：B 的来源",
+    "mass_kg": null,
+    "perturb_pct": 10.0,
+    "perturb_reasons": [
+      "制造公差",
+      "温升",
+      "磨损",
+      "装配差异"
+    ]
+  },
+  "coupling": {
+    "scheme": "待填：刚性/弹性柱销/膜片（CATIA 建模 + 手册查 Ks）",
+    "Ks": null,
+    "Ds": null,
+    "J1": 0.01,
+    "J2": 0.01,
+    "omega_n_rad_s": null,
+    "I_ratio": 1.0,
+    "eta": 1.0,
+    "note": "Ks 查联轴器手册；ω_n 由机械组算好后交给电控组，观测器带宽需覆盖其 2~5 倍"
+  },
+  "load_physics": {
+    "step": "待填：突加负载的工况",
+    "sin": "待填：波动负载的工况",
+    "ramp": "待填：斜坡负载的工况"
+  }
+}

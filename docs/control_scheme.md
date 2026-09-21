@@ -1,4 +1,4 @@
-# 多电机协作（同步）控制仿真方案
+﻿# 多电机协作（同步）控制仿真方案
 
 ## 1. 研究问题
 
@@ -244,7 +244,7 @@ $(B_2 - B_n)\omega^*$——观测器把负载和参数失配一并估计了出�
 
 ## 7. 后续工作
 
-- [ ] 迁移到 Simulink Electrical（PMSM + 变频器级模型），见 `models/multi_motor_sync.m`
+- [ ] 迁移到 Simulink/Simscape Electrical（PMSM + 变频器级模型），见 `electrical/matlab/multi_motor_sync_matlab.m`
 - [ ] 同步 PI 参数扫描（K_s、K_si 网格），找最优组合
 - [ ] 加入 CAN 总线通信延迟（0.5–2 ms）对同步误差的影响
 - [x] 复合创新策略 DCC+DOB：偏差耦合 + 扰动观测器前馈（2026-09-19 完成，四项指标全面最优）
