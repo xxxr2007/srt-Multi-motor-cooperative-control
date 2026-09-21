@@ -2,10 +2,15 @@
  * 多电机协作（同步）控制仿真 —— C 语言实现（嵌入式风格）
  *
  * 模型：4 台带参数摄动的电机（转速环 PI + 转矩饱和 + 条件抗积分饱和）
+ *       被控对象两种模式（由联轴器刚度 Ks 自动切换，见 MECH_KS 注释）：
+ *       - 刚性直连：单惯量 J·ω̇ = Te − B·ω − TL（机械组未交付 Ks 时的回退）
+ *       - 弹性传动：双惯量（方案 A）—— 电机侧 J1 / 联轴器 Ks,Ds / 负载侧 J2，
+ *         谐振频率 ω_n=√(Ks·(1/J1+1/J2))，与 DOB 带宽 g 构成机电耦合点
  * 策略：主从 / 交叉耦合(CCC) / 惯量加权偏差耦合(DCC) / DCC+扰动观测器(DOB)前馈
  *       —— 第 4 种为本项目的复合创新策略：耦合骨架之上叠加扰动观测器，
- *          把"纯反馈"升级为"前馈+反馈"，对负载扰动与参数摄动双重鲁棒。
- * 输出：results/sim_data_c.csv  降采样转速数据（供 plot_results.py 画图）
+ *          把"纯反馈"升级为"前馈+反馈"，对负载扰动与参数摄动双重鲁棒；
+ *          弹性模式下 DOB 还顺带吸收联轴器弹性扭矩（机电协同创新点）。
+ * 输出：results/sim_data_c.csv  降采样输出转速（刚性=电机侧；弹性=负载侧）
  *       results/metrics_c.csv   指标汇总
  *       results/dob_est_c.csv   dcc_dob 策略 2 号机的扰动估计值与等效真值
  *                               （验证观测器收敛性，供画 DOB 效果图）
@@ -14,8 +19,8 @@
  *           全部循环、积分器、CSV 输出均按 N_MOTOR 自动适配。
  *
  * 编译（在本仓库根目录执行）：
- *   gcc -O2 -o build/multi_motor_sync.exe scripts/multi_motor_sync.c -lm   <- 推荐
- *   tcc     -o build/multi_motor_sync.exe scripts/multi_motor_sync.c       <- 勿加 -lm
+ *   gcc -O2 -o build/multi_motor_sync.exe electrical/c/multi_motor_sync.c -lm   <- 推荐
+ *   tcc     -o build/multi_motor_sync.exe electrical/c/multi_motor_sync.c       <- 勿加 -lm
  *   实测 TinyCC 0.9.27 (x64) 对本代码存在传参代码生成 bug（混合 double/int
  *   参数的函数会算错），一律优先用 gcc。
  *
@@ -30,7 +35,25 @@
 #include <math.h>    /* sin() —— 电机3 的周期波动负载；sqrt() —— 指标 RMS 计算 */
 #include <direct.h>  /* _mkdir() —— Windows 下创建输出目录 results/ */
 
-/*====================== 参数区（与 data/params.json 对应） ======================*/
+/*====================== 参数区 ======================
+ * 参数优先级（两级，自动选择）：
+ *   ① 【推荐】机械组交付 data/mechanical/mech_params.json ＋ 电控组配置
+ *      data/electrical/ctrl_params.json → 经 electrical/c/merge_params.py 合并生成
+ *      build/params_generated.h → 本文件直接 include（下面的默认值被覆盖）
+ *   ② 【回退】若 ① 尚未生成，则用下方内置默认值（与合并前的初始参数同口径）
+ * 好处：两组改参数只需重跑 merge_params.py 再编译，本文件一行都不用动。
+ * 注意：本文件现位于 electrical/c/，到仓库根多了一级，include 的相对路径
+ *       相应从 ../build/ 变为 ../../build/。
+ */
+#if defined(__has_include)
+#  if __has_include("../../build/params_generated.h")
+#    include "../../build/params_generated.h"   /* 合并后的参数：覆盖下方全部默认值 */
+#    define PARAMS_FROM_FILE 1
+#  endif
+#endif
+
+#ifndef PARAMS_FROM_FILE
+/* ---- 内置默认参数（回退用，与 data/params.json 初始值一致） ---- */
 #define N_MOTOR        4              /* 电机台数；四台同型号，参数带 ±10% 摄动 */
 #define DT             1e-4           /* 仿真步长 s（0.1 ms），显式欧拉积分步长 */
 #define T_END          3.0            /* 总仿真时长 s                  */
@@ -67,9 +90,28 @@ static const double B_MOTOR[N_MOTOR] = { 0.0012, 0.0011, 0.0013, 0.00115 };/* �
                                        *    该频率下幅值衰减 <1%、相位滞后 atan(12.6/100)≈7°，估计几乎不失真；
                                        * ③ 不与转速环打架：经验取环带宽的 5~10 倍，前馈/反馈时标分离。 */
 
+/* ---- 方案 A：弹性传动链（双惯量被控对象，第二个创新点）----
+ * MECH_KS : 联轴器扭转刚度 N*m/rad —— 机械组交付后由 merge_params.py 写入。
+ *           Ks<=0（未交付）时内核自动退回"刚性直连"单惯量模型，
+ *           仿真行为与旧版逐位一致，验收基线不受影响；
+ *           Ks>0 时启用双惯量模型（见 plant_step2 的推导注释）。
+ * MECH_DS : 联轴器等效黏性阻尼 N*m*s/rad（弹性扭矩的阻尼项）。
+ * MECH_JL : 负载侧惯量 kg*m^2（电机侧沿用 J_MOTOR[i]，±10% 摄动随之带入两侧）。
+ * 机电耦合点：谐振频率 ω_n = √(Ks·(1/Jm+1/JL))。观测器带宽 g 必须覆盖 ω_n 的
+ *           2~5 倍才能把谐振"当作扰动"估计掉 —— 这条约束正是两组协同设计的接口。 */
+#define MECH_KS        0.0            /* 默认 0 = 刚性（机械组未交付 Ks 时的回退值） */
+#define MECH_DS        0.0            /* 阻尼默认 0（刚性模式下不参与计算） */
+#define MECH_JL        0.010          /* 负载侧惯量默认值（与 J_MOTOR 名义同量级） */
+
 #define OUT_EVERY      100            /* CSV 降采样步数（100×1e-4 s = 10 ms 记一行） */
 #define REC_THRESHOLD  0.5            /* 恢复判定阈值 rad/s（误差回落到此值内算恢复） */
 #define REC_HOLD       500            /* 恢复需保持的步数（500×1e-4 s = 50 ms） */
+
+#endif /* PARAMS_FROM_FILE：回退默认值结束；若已 include 生成参数则整块跳过 */
+
+/* 弹性模式总开关：Ks>0 即启用双惯量模型。做成编译期常量条件，
+ * 两种模式各自走死代码消除后的直通路径，都不带 if 分支开销。 */
+#define USE_ELASTIC   (MECH_KS > 0.0)
 
 /*====================== 数据结构 ======================*/
 /* 单个策略跑完后算出的四项性能指标 */
@@ -137,13 +179,54 @@ static double torque_pi(double ref, double w, double *integ)
     return te;
 }
 
-/* 机械方程欧拉离散：J·dω/dt = Te − B·ω − TL
-   => ω(k+1) = ω(k) + DT·(Te − B·ω(k) − TL) / J
-   IN : w 本步转速，te 本步电磁转矩，tl 本步负载转矩，i 电机序号（取 J、B 的摄动值）
-   OUT: 下一拍转速 */
-static double plant_step(double w, double te, double tl, int i)
+/* 机械方程欧拉离散 —— 刚性/弹性双模式的统一入口（方案 A 创新点的被控对象侧）
+ *
+ * ① 刚性模式（MECH_KS<=0，即机械组尚未交付联轴器刚度）：
+ *      J·dω/dt = Te − B·ω − TL
+ *      => ω(k+1) = ω(k) + DT·(Te − B·ω(k) − TL) / J
+ *    与旧版单惯量 plant_step 逐步等价 —— 保证验收基线（RMS 0.041 等）不受本次
+ *    重构影响； wl 恒等于 wm、th 恒为 0（刚性无扭转变形）。
+ *
+ * ② 弹性模式（MECH_KS>0，机械组交付 Ks 后自动切换）：双惯量弹性传动链
+ *      电机侧：J1·ω̇m = Te − B·ωm − Ks·θ − Ds·(ωm−ωl)   ← 电磁转矩先扭联轴器
+ *      负载侧：J2·ω̇l = Ks·θ + Ds·(ωm−ωl) − TL            ← 弹性扭矩驱动负载
+ *      扭转角：θ̇ = ωm − ωl                                ← 弹性扭矩 = Ks·θ
+ *    稳态自检：ωm=ωl、θ=TL/Ks —— 弹性扭矩恰好扛住负载，转速环只控电机侧。
+ *    离散化采用"半隐式（辛）欧拉"：先用旧 θ 更新两侧转速、再用新转速差更新 θ。
+ *    相比全显式欧拉，对无阻尼振子不做能量漂移，谐振仿真更稳（精度要求
+ *    ω_n·DT ≪ 1，main() 里有运行时巡检）。
+ *
+ * IN/OUT: wm 电机侧转速 rad/s（控制器反馈用：编码器装在电机轴上）
+ *         wl 负载侧转速 rad/s（同步误差评价用：实际"干活"的那一端）
+ *         th 扭转角 θ rad（弹性状态，刚性模式下恒 0）
+ *         三者均为跨步保持的状态量，故传指针（调用方按策略各自持有数组）。
+ * IN    : te 电磁转矩 N*m、tl 负载转矩 N*m、i 电机序号（取 J/B 的摄动值）。
+ * 说明  : 负载侧轴承摩擦相对很小，按理想处理（不给负载侧另设摩擦系数）。 */
+static void plant_step2(double *wm, double *wl, double *th, double te, double tl, int i)
 {
-    return w + DT * (te - B_MOTOR[i] * w - tl) / J_MOTOR[i];
+    if (USE_ELASTIC) {
+        double tel  = MECH_KS * (*th) + MECH_DS * ((*wm) - (*wl)); /* 弹性扭矩=弹簧 Ks·θ + 阻尼 Ds·Δω */
+        double dwm  = (te - B_MOTOR[i] * (*wm) - tel) / J_MOTOR[i];/* 电机侧角加速度（弹性扭矩是"内耗"） */
+        double dwl  = (tel - tl) / MECH_JL;                        /* 负载侧角加速度（弹性扭矩是"动力"） */
+        (*wm) += DT * dwm;                    /* 先更新两侧转速（用旧 θ 算的加速度） */
+        (*wl) += DT * dwl;
+        (*th) += DT * ((*wm) - (*wl));        /* 再用新转速差更新扭转角：半隐式欧拉 */
+    } else {
+        (*wm) += DT * (te - B_MOTOR[i] * (*wm) - tl) / J_MOTOR[i]; /* 刚性：单惯量，同旧版 */
+        (*wl) = (*wm);                        /* 刚性直连：负载侧与电机侧同速 */
+        /* th 保持调用方的初值 0：刚性模式无扭转变形，无需更新 */
+    }
+}
+
+/* 输出转速选择：评价/存档用哪一端的转速。
+ * 弹性模式取负载侧（ωl，真实输出端，谐振会在它上面显形）；刚性模式两者恒等。
+ * 把这个口径集中成一个函数，四种策略共用，避免各处写法漂移导致指标不可比。 */
+static void out_speeds(const double wm[N_MOTOR], const double wl[N_MOTOR],
+                       double wo[N_MOTOR])
+{
+    int i;
+    for (i = 0; i < N_MOTOR; i++)
+        wo[i] = USE_ELASTIC ? wl[i] : wm[i];   /* 编译期常量分支，等于直接选一路 */
 }
 
 /* 同步误差：同型电机下 max|ωi−ωj| 等价于 max − min
@@ -166,7 +249,10 @@ static double sync_error(const double w[N_MOTOR])
          "主机测速 → 通信 → 从机执行"必然存在的一拍延迟。 */
 static void run_master_slave(FILE *fp)
 {
-    double w[N_MOTOR] = { 0 };                 /* 四台电机转速状态，从静止起步 */
+    double w[N_MOTOR] = { 0 };                 /* 四台电机【电机侧】转速状态，从静止起步 */
+    double wl[N_MOTOR] = { 0 };                /* 负载侧转速（弹性模式用；刚性模式恒等于 w） */
+    double th[N_MOTOR] = { 0 };                /* 联轴器扭转角 θ（弹性模式用；刚性恒 0） */
+    double wo[N_MOTOR];                        /* 输出转速（评价/存档口径，见 out_speeds） */
     double integ[N_MOTOR] = { 0 };             /* 四路转速环 PI 积分器 */
     double tl[N_MOTOR], refs[N_MOTOR], prev_master = 0.0;
     int k, i;
@@ -178,15 +264,16 @@ static void run_master_slave(FILE *fp)
         for (i = 1; i < N_MOTOR; i++)
             refs[i] = prev_master;             /* 全部从机：跟踪主机上一拍转速 */
         for (i = 0; i < N_MOTOR; i++) {
-            double te = torque_pi(refs[i], w[i], &integ[i]);   /* 转速环算转矩 */
-            w[i] = plant_step(w[i], te, tl[i], i);             /* 机械方程推进一拍 */
+            double te = torque_pi(refs[i], w[i], &integ[i]);   /* 转速环算转矩（控电机侧） */
+            plant_step2(&w[i], &wl[i], &th[i], te, tl[i], i);  /* 双惯量机械方程推进一拍 */
         }
-        prev_master = w[0];                    /* 缓存主机本拍转速，供下拍从机使用 */
-        se_hist[k] = sync_error(w);            /* 记录本拍同步误差 */
-        w2_hist[k] = w[1];                     /* 记录本拍电机2 转速（算跌落用） */
+        prev_master = w[0];                    /* 缓存主机本拍转速（电机侧，编码器位置），供下拍从机 */
+        out_speeds(w, wl, wo);                 /* 选取评价口径的输出转速 */
+        se_hist[k] = sync_error(wo);           /* 记录本拍同步误差 */
+        w2_hist[k] = wo[1];                    /* 记录本拍电机2 输出转速（算跌落用） */
         if (k % OUT_EVERY == 0)                /* 降采样写 CSV，避免文件过大 */
             for (i = 0; i < N_MOTOR; i++)
-                fprintf(fp, "%.4f,master_slave,%d,%.4f\n", t, i + 1, w[i]);
+                fprintf(fp, "%.4f,master_slave,%d,%.4f\n", t, i + 1, wo[i]);
     }
 }
 
@@ -196,7 +283,10 @@ static void run_master_slave(FILE *fp)
    直观理解：谁比大家快就把谁的参考压低、反之抬高 —— 全场一起"扶"受扰的那台。 */
 static void run_cross_coupling(FILE *fp)
 {
-    double w[N_MOTOR] = { 0 };                 /* 四台电机转速状态 */
+    double w[N_MOTOR] = { 0 };                 /* 四台电机【电机侧】转速状态 */
+    double wl[N_MOTOR] = { 0 };                /* 负载侧转速（弹性模式用） */
+    double th[N_MOTOR] = { 0 };                /* 联轴器扭转角（弹性模式用） */
+    double wo[N_MOTOR];                        /* 输出转速（评价/存档口径） */
     double integ[N_MOTOR] = { 0 };             /* 四路转速环 PI 积分器 */
     double isync[N_MOTOR] = { 0 };             /* 四路同步补偿积分器 ∫ε_i dt */
     double tl[N_MOTOR];
@@ -208,18 +298,19 @@ static void run_cross_coupling(FILE *fp)
         for (i = 0; i < N_MOTOR; i++) {
             double sum = 0.0, se, comp, te;
             for (j = 0; j < N_MOTOR; j++)
-                if (j != i) sum += w[j];       /* 累加除自身外其他电机转速 */
+                if (j != i) sum += w[j];       /* 累加除自身外其他电机转速（电机侧，编码器量） */
             se = w[i] - sum / (N_MOTOR - 1);   /* ε_i = ω_i − avg(others) */
             isync[i] += se * DT;               /* 同步误差积分 */
             comp = -(SYNC_KP * se + SYNC_KI * isync[i]);   /* 负号：快的压低、慢的抬高 */
             te = torque_pi(speed_ref(t) + comp, w[i], &integ[i]);  /* 修正参考后过转速环 */
-            w[i] = plant_step(w[i], te, tl[i], i);                 /* 机械方程推进一拍 */
+            plant_step2(&w[i], &wl[i], &th[i], te, tl[i], i);      /* 双惯量机械方程推进一拍 */
         }
-        se_hist[k] = sync_error(w);
-        w2_hist[k] = w[1];
+        out_speeds(w, wl, wo);                 /* 评价口径：弹性模式取负载侧 */
+        se_hist[k] = sync_error(wo);
+        w2_hist[k] = wo[1];
         if (k % OUT_EVERY == 0)
             for (i = 0; i < N_MOTOR; i++)
-                fprintf(fp, "%.4f,cross_coupling,%d,%.4f\n", t, i + 1, w[i]);
+                fprintf(fp, "%.4f,cross_coupling,%d,%.4f\n", t, i + 1, wo[i]);
     }
 }
 
@@ -229,7 +320,10 @@ static void run_cross_coupling(FILE *fp)
                  DCC 对每对偏差各有一个积分器，响应更偏向跟随高惯量电机。 */
 static void run_deviation_coupling(FILE *fp)
 {
-    double w[N_MOTOR] = { 0 };                    /* 四台电机转速状态 */
+    double w[N_MOTOR] = { 0 };                    /* 四台电机【电机侧】转速状态 */
+    double wl[N_MOTOR] = { 0 };                   /* 负载侧转速（弹性模式用） */
+    double th[N_MOTOR] = { 0 };                   /* 联轴器扭转角（弹性模式用） */
+    double wo[N_MOTOR];                           /* 输出转速（评价/存档口径） */
     double integ[N_MOTOR] = { 0 };                /* 四路转速环 PI 积分器 */
     double ipair[N_MOTOR][N_MOTOR] = { { 0 } };   /* 成对同步积分器 ipair[i][j]：i 对 j 的偏差积分 */
     double tl[N_MOTOR];
@@ -246,19 +340,20 @@ static void run_deviation_coupling(FILE *fp)
                 if (j == i) continue;             /* 跳过自身，无自偏差项 */
                 {
                     double wj = J_MOTOR[j] / wsum;    /* 惯量加权系数 w_ij */
-                    double dev = w[i] - w[j];         /* 成对偏差 ω_i − ω_j */
+                    double dev = w[i] - w[j];         /* 成对偏差 ω_i − ω_j（电机侧） */
                     ipair[i][j] += dev * DT;          /* 该对偏差的积分累加 */
                     comp -= wj * (SYNC_KP * dev + SYNC_KI * ipair[i][j]);  /* 加权累加补偿 */
                 }
             }
             te = torque_pi(speed_ref(t) + comp, w[i], &integ[i]);   /* 修正参考后过转速环 */
-            w[i] = plant_step(w[i], te, tl[i], i);                  /* 机械方程推进一拍 */
+            plant_step2(&w[i], &wl[i], &th[i], te, tl[i], i);       /* 双惯量机械方程推进一拍 */
         }
-        se_hist[k] = sync_error(w);
-        w2_hist[k] = w[1];
+        out_speeds(w, wl, wo);                    /* 评价口径：弹性模式取负载侧 */
+        se_hist[k] = sync_error(wo);
+        w2_hist[k] = wo[1];
         if (k % OUT_EVERY == 0)
             for (i = 0; i < N_MOTOR; i++)
-                fprintf(fp, "%.4f,deviation_coupling,%d,%.4f\n", t, i + 1, w[i]);
+                fprintf(fp, "%.4f,deviation_coupling,%d,%.4f\n", t, i + 1, wo[i]);
     }
 }
 
@@ -297,10 +392,21 @@ static void run_deviation_coupling(FILE *fp)
 
    IN: fp 已打开的转速 CSV 句柄（与三种经典策略同格式、同降采样）
    附带输出: results/dob_est_c.csv —— 2 号机（突加负载机）的 d̂ 与等效真值 d，
-             供 plot_results.py 画观测器收敛效果图。 */
+             供 plot_results.py 画观测器收敛效果图。
+
+   弹性模式下的角色（方案 A 创新点的电控侧）：双惯量对象里，电机侧方程为
+        J1·ω̇m = Te − B·ωm − [Ks·θ + Ds·(ωm−ωl)]
+   对照 DOB 的名义模型 Jn·ω̇m = Te − Bn·ωm − d，可见【弹性扭矩整段被吸进 d】。
+   于是观测器对 d 的前馈抵消顺带补偿了弹性扭矩 —— 但前提是 g 能覆盖谐振频率
+   ω_n（详见文件头 MECH_KS 注释）：g < ω_n 时谐振频段 Q(s)≈0，DOB "看不见"
+   谐振，此时必须靠机械侧让步（换软联轴器降 ω_n）或电控侧加陷波 —— 这条
+   带宽-刚度匹配准则就是两组"机电协同设计"的定量接口。 */
 static void run_dcc_dob(FILE *fp)
 {
-    double w[N_MOTOR] = { 0 };                    /* 四台电机转速状态，从静止起步 */
+    double w[N_MOTOR] = { 0 };                    /* 四台电机【电机侧】转速状态，从静止起步 */
+    double wl[N_MOTOR] = { 0 };                   /* 负载侧转速（弹性模式用） */
+    double th[N_MOTOR] = { 0 };                   /* 联轴器扭转角（弹性模式用） */
+    double wo[N_MOTOR];                           /* 输出转速（评价/存档口径） */
     double integ[N_MOTOR] = { 0 };                /* 四路转速环 PI 积分器 */
     double ipair[N_MOTOR][N_MOTOR] = { { 0 } };   /* 成对同步积分器（DCC 骨架，同前） */
     double x[N_MOTOR] = { 0 };                    /* 四路 DOB 滤波器状态 x */
@@ -340,25 +446,27 @@ static void run_dcc_dob(FILE *fp)
 
             /* ---- 观测器更新（严格按推导的三行来） ---- */
             w_old = w[i];
-            w_new = plant_step(w_old, te, tl[i], i);          /* 真实对象推进一拍 */
+            plant_step2(&w[i], &wl[i], &th[i], te, tl[i], i);   /* 双惯量真实对象推进一拍 */
+            w_new = w[i];                         /* 观测器全部用【电机侧】转速（编码器量）：
+                                                     弹性模式下弹性扭矩落入 d，由前馈一并补偿 */
             u = te + (DOB_G * j_nom - b_nom) * w_old;         /* 滤波器输入 u */
             x[i] += DT * DOB_G * (u - x[i]);                  /* ẋ=g(u−x) 的欧拉积分 */
             dhat[i] = x[i] - DOB_G * j_nom * w_new;           /* d̂ = x − g·Jn·ω（用新转速对齐同拍） */
-            w[i] = w_new;
 
             /* 2 号机的观测器效果存档：等效真值由 d = Te − Bn·ω_old − Jn·Δω/DT 反解，
-               离散意义下严格成立；它与真实负载之差正是参数失配项的贡献 */
+               离散意义下严格成立；它与真实负载之差正是参数失配项（与弹性扭矩）的贡献 */
             if (fpd && i == 1 && k % OUT_EVERY == 0) {
                 double d_true = te - b_nom * w_old
                               - j_nom * (w_new - w_old) / DT;
                 fprintf(fpd, "%.4f,%.4f,%.4f\n", t, d_true, dhat[i]);
             }
         }
-        se_hist[k] = sync_error(w);
-        w2_hist[k] = w[1];
+        out_speeds(w, wl, wo);                    /* 评价口径：弹性模式取负载侧 */
+        se_hist[k] = sync_error(wo);
+        w2_hist[k] = wo[1];
         if (k % OUT_EVERY == 0)
             for (i = 0; i < N_MOTOR; i++)
-                fprintf(fp, "%.4f,dcc_dob,%d,%.4f\n", t, i + 1, w[i]);
+                fprintf(fp, "%.4f,dcc_dob,%d,%.4f\n", t, i + 1, wo[i]);
     }
     if (fpd) fclose(fpd);   /* 只关成功打开的句柄 */
 }
@@ -409,8 +517,24 @@ int main(void)
     FILE *fp;
     Metrics ms[N_STRATEGY];           /* 四个策略各存一份指标 */
     int i;
+    double j_mean = 0.0, wn = 0.0;    /* 名义平均惯量 / 谐振频率（弹性模式巡检用） */
 
     _mkdir("results");   /* 已存在则返回 -1，此处忽略即可 */
+
+    /* ---- 被控对象模式自检：启动时就告诉用户当前跑的是哪种物理模型 ---- */
+    for (i = 0; i < N_MOTOR; i++) j_mean += J_MOTOR[i];
+    j_mean /= N_MOTOR;                        /* Jm 名义均值（与 DOB 的 Jn 同口径） */
+    if (USE_ELASTIC) {
+        wn = sqrt(MECH_KS * (1.0 / j_mean + 1.0 / MECH_JL));  /* ω_n=√(Ks·(1/Jm+1/JL)) */
+        printf("plant : elastic two-inertia (Ks=%.4g N*m/rad, Ds=%.4g, J_L=%.4g kg*m^2, w_n=%.1f rad/s)\n",
+               MECH_KS, MECH_DS, MECH_JL, wn);
+        if (wn * DT > 0.05)
+            /* 半隐式欧拉的精度经验：每谐振周期至少 ~125 步（ω_n·DT<0.05），再大波形失真 */
+            printf("[WARN] w_n*DT=%.4g 偏大，谐振仿真精度不足，建议减小 DT 或降低 Ks\n",
+                   wn * DT);
+    } else {
+        printf("plant : rigid single-inertia (Ks not delivered yet, fallback)\n");
+    }
 
     /* ---- 跑三种策略，转速数据顺带写进同一个 CSV ---- */
     fp = fopen("results/sim_data_c.csv", "w");

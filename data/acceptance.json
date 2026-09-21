@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "version": "v1",
+    "frozen": true,
+    "frozen_date": "2026-09-21",
+    "note": "验收规则。开题冻结后不得中途调整，否则不算收敛。判定脚本：scripts/check_acceptance.py",
+    "baseline_strategy": "deviation_coupling",
+    "target_strategy": "dcc_dob"
+  },
+
+  "thresholds": {
+    "rms_rad_s":     { "max": 0.05, "desc": "同步误差 RMS 上限（全程平均同步偏差）" },
+    "peak_rad_s":    { "max": 0.60, "desc": "突加载瞬间最大同步误差上限" },
+    "recover_s":     { "max": 0.02, "desc": "扰动后同步误差回落至阈值内的恢复时间上限" },
+    "dip_rad_s":     { "max": 0.60, "desc": "电机2 转速最大跌落上限" }
+  },
+
+  "relative": {
+    "enabled": true,
+    "vs_strategy": "deviation_coupling",
+    "metric": "rms_rad_s",
+    "min_improve_pct": 50,
+    "desc": "目标策略的 RMS 必须比最强经典策略再降至少 50%，证明创新点真有效"
+  },
+
+  "no_regression": {
+    "enabled": true,
+    "tol_pct": 5,
+    "desc": "与上一轮相比，任一项指标不得恶化超过 5%（防止按下葫芦浮起瓢）",
+    "prev_metrics_file": "results/metrics_prev.csv"
+  },
+
+  "stop_rule": {
+    "consecutive_rounds": 2,
+    "improve_below_pct": 5,
+    "desc": "连续两轮迭代改进幅度都小于 5% 即判收敛，冻结参数与算法；避免无限打转"
+  },
+
+  "robustness": {
+    "enabled": false,
+    "phase_margin_deg_min": 45,
+    "gain_margin_db_min": 6,
+    "desc": "稳定裕度要求（需先实现频率响应计算；未启用前不参与判定）"
+  }
+}

@@ -8,7 +8,7 @@
   3. 惯量加权偏差耦合控制（Deviation Coupling Control, DCC）
 
 运行：
-  python scripts/multi_motor_sync.py
+  python electrical/c/multi_motor_sync.py
 输出：
   results/speed_tracking.png        三种策略的转速跟随曲线
   results/sync_error_comparison.png 三种策略的同步误差对比
@@ -16,7 +16,7 @@
   results/metrics.csv               指标数据表
   results/sim_data.csv              原始仿真数据（长表）
 
-说明：本文件是首版 Python 实现，现已由 scripts/multi_motor_sync.c 取代
+说明：本文件是首版 Python 实现，现已由 electrical/c/multi_motor_sync.c 取代
       （C 版是当前主入口，画图交给 plot_results.py）。此处保留作为可读性
       更强的算法参照与结果交叉验证。
 """
@@ -34,8 +34,8 @@ import matplotlib.pyplot as plt  # 必须在 use("Agg") 之后导入才生效
 plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei"]  # 中文显示
 plt.rcParams["axes.unicode_minus"] = False   # 负号用 ASCII '-'，否则部分中文字体下负号显示成方框
 
-HERE = os.path.dirname(os.path.abspath(__file__))   # 本脚本目录：.../srtfangzhen/scripts
-ROOT = os.path.dirname(HERE)                        # 仓库根目录：.../srtfangzhen
+HERE = os.path.dirname(os.path.abspath(__file__))   # 本脚本目录：.../仓库根/electrical/c
+ROOT = os.path.dirname(os.path.dirname(HERE))       # 仓库根目录：再上两级（c → electrical → 根）
 RESULTS = os.path.join(ROOT, "results")             # 输出目录
 DATA = os.path.join(ROOT, "data")                   # 参数目录
 os.makedirs(RESULTS, exist_ok=True)                 # 目录已存在时不报错
