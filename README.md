@@ -205,6 +205,16 @@ plot_results.py 读取 results/ 下的 CSV，生成转速跟踪、同步误差�
 ### 修改参数
 C 版参数在 multi_motor_sync.c 顶部"参数区"的宏定义中，与 data/params.json 一一对应，改完需重新编译方可生效。
 -->
+## 学习计划三件套（新人先看这里）
+
+| 文档 | 作用 |
+|---|---|
+| [three_month_plan.md](docs/three_month_plan.md) | 13 周总计划：交付节奏、分工、学习总地图 |
+| [study_plan.md](docs/study_plan.md) | 前 8 周系统上课的**纯知识点字典**（★核心 / ○加分，不绑教材章号） |
+| [weekly_tasks.md](docs/weekly_tasks.md) | 每周任务与验收登记模板，组员每周五前填这里 |
+
+> 项目是算法仿真（不烧板）：主线自控 + 电机理论 + 信号/复变/线代 + C（读仿真内核）+ Python（出图）+ MATLAB/Simulink；STM32 / 电力电子 / 模电为实物阶段才用的加分项。
+
 ## 开发规范
 
 - `main` 保持"能跑"的状态，大改动开 `feature/xxx` 分支
