@@ -212,6 +212,7 @@ C 版参数在 multi_motor_sync.c 顶部"参数区"的宏定义中，与 data/pa
 | [three_month_plan.md](docs/three_month_plan.md) | 13 周总计划：交付节奏、分工、学习总地图 |
 | [study_plan.md](docs/study_plan.md) | 前 8 周系统上课的**纯知识点字典**（★核心 / ○加分，不绑教材章号） |
 | [weekly_tasks/weekly_tasks.md](docs/weekly_tasks/weekly_tasks.md) | 周任务表（W0–W13 初稿，从 three_month_plan 复制，组长直接在此改） |
+| [Formal Written Report/组员周报提交表.md](docs/Formal%20Written%20Report/%E7%BB%84%E5%91%98%E5%91%A8%E6%8A%A5%E6%8F%90%E4%BA%A4%E8%A1%A8.md) | **组员每周正式提交处**：每周五前填好本周所学、学习证明、项目交付物、验收物，交给组长 |
 
 > 项目是算法仿真（不烧板）：主线自控 + 电机理论 + 信号/复变/线代 + C（读仿真内核）+ Python（出图）+ MATLAB/Simulink；STM32 / 电力电子 / 模电为实物阶段才用的加分项。
 
