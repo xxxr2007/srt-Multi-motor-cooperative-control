@@ -214,7 +214,6 @@ C 版参数在 multi_motor_sync.c 顶部"参数区"的宏定义中，与 data/pa
 | [weekly_tasks.md](docs/weekly_tasks.md) | 周任务表（W0–W13 初稿，从 three_month_plan 复制，组长直接在此改） |
 
 > 项目是算法仿真（不烧板）：主线自控 + 电机理论 + 信号/复变/线代 + C（读仿真内核）+ Python（出图）+ MATLAB/Simulink；STM32 / 电力电子 / 模电为实物阶段才用的加分项。
-> 组员每周五前按 [weekly_submit_template.md](docs/weekly_submit_template.md) 的格式交任务，验收物直接交组长（沈修竹）。
 
 ## 开发规范
 
