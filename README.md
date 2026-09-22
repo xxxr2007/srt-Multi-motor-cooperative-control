@@ -136,7 +136,7 @@ srt-multi-motor/
 │   └─ matlab/      MATLAB：multi_motor_sync_matlab.m 参照实现；run_c_sim.m 一键调 C 版仿真；
 │                   params_setup.m Simulink 参数装载脚本
 ├─ docs/            公共文档：control_scheme.md 方案与公式推导；collaboration.md 两组协同机制；
-│                   weekly_tasks.md 每周任务；开题/结题材料
+│                   weekly_tasks/ 每周任务文件夹（W0–W13 执行表 weekly_tasks.md）；开题/结题材料
 ├─ build/           编译产物 + 参数头文件（已 gitignore）
 └─ results/         输出：转速曲线、同步误差对比、指标柱状图、CSV 数据（已 gitignore）
 ```
@@ -211,7 +211,7 @@ C 版参数在 multi_motor_sync.c 顶部"参数区"的宏定义中，与 data/pa
 |---|---|
 | [three_month_plan.md](docs/three_month_plan.md) | 13 周总计划：交付节奏、分工、学习总地图 |
 | [study_plan.md](docs/study_plan.md) | 前 8 周系统上课的**纯知识点字典**（★核心 / ○加分，不绑教材章号） |
-| [weekly_tasks.md](docs/weekly_tasks.md) | 周任务表（W0–W13 初稿，从 three_month_plan 复制，组长直接在此改） |
+| [weekly_tasks/weekly_tasks.md](docs/weekly_tasks/weekly_tasks.md) | 周任务表（W0–W13 初稿，从 three_month_plan 复制，组长直接在此改） |
 
 > 项目是算法仿真（不烧板）：主线自控 + 电机理论 + 信号/复变/线代 + C（读仿真内核）+ Python（出图）+ MATLAB/Simulink；STM32 / 电力电子 / 模电为实物阶段才用的加分项。
 
