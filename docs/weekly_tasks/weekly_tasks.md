@@ -33,7 +33,7 @@
 - **验收物**
   - 每人能 clone / pull / commit / push 一次改动（在 Formal Written Report 写一句「我进组了」）　`[0.5 h]`
 - **交叉接口动作**：无
-- **状态**：🔄 进行中（曹磊已完成，其余待交）
+- **状态**：🔄 进行中
 - **备注**：SourceGit 的 Push 按钮走 GCM 免密；命令行 push 在本机会静默失败。
 
 ---
