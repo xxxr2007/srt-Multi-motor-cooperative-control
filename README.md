@@ -213,7 +213,8 @@ C 版参数在 multi_motor_sync.c 顶部"参数区"的宏定义中，与 data/pa
 |---|---|
 | [three_month_plan.md](docs/three_month_plan.md) | 13 周总计划：交付节奏、分工、学习总地图 |
 | [study_plan.md](docs/study_plan.md) | 前 8 周系统上课的**纯知识点字典**（★核心 / ○加分，不绑教材章号） |
-| [weekly_tasks/weekly_tasks.md](docs/weekly_tasks/weekly_tasks.md) | **周任务执行表**：W0–W13 逐周，含负责人 / 系统课知识点 / 交付物 / 验收物 / 交叉接口 / 状态 / 备注，每项标所需时间（总 285 h），组长直接在此改 |
+| [weekly_tasks/weekly_tasks.md](docs/weekly_tasks/weekly_tasks.md) | **周任务执行表**：W0–W13 逐周，含负责人 / 系统课知识点 / 交付物 / 验收物 / 交叉接口 / 状态 / 备注；**时间按电控组 / 机械组 / 全组公共三组分开统计**（电控 ≈160 h、机械 ≈140 h、公共 ≈19 h、总 ≈320 h），组长直接在此改 |
+| [weekly_tasks_iteration.md](docs/weekly_tasks_iteration.md) | **迭代期周表**：W13 之后约一年（机电协同迭代创新），按轮次记录 机械创新→交付→电控更新→反馈 闭环，组长/岗位直接在此填轮次进展 |
 | [Formal Written Report/组员周报提交表.md](docs/Formal%20Written%20Report/%E7%BB%84%E5%91%98%E5%91%A8%E6%8A%A5%E6%8F%90%E4%BA%A4%E8%A1%A8.md) | **组员每周正式提交处**：每周五前填好本周所学、学习证明、项目交付物、验收物，交给组长 |
 
 > 项目是算法仿真（不烧板）：主线自控 + 电机理论 + 电路分析 + 信号/复变/线代 + C（读仿真内核）+ Python（出图）+ MATLAB/Simulink；STM32 / 电力电子 / 模电为实物阶段才用的加分项。

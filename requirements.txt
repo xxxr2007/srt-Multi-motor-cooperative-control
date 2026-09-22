@@ -1,0 +1,7 @@
+# Python 依赖（电控组出图 / 参数扫描 / 验收判定用）
+# 锁定大版本，W0 由组长统一确认实际版本后填在此处
+numpy>=1.26
+pandas>=2.0
+matplotlib>=3.7
+jupyter>=1.0
+# 注：C 仿真内核不依赖 Python；MATLAB/Simulink、CATIA 为正版授权软件，版本见 docs/environment.md
