@@ -27,7 +27,7 @@
 | 阶段 | 周次 | 机械组主线 | 电控组主线 | 里程碑 |
 |---|---|---|---|---|
 | **入门** | W1–W3 | 文献 + CATIA 上手 | 数学补课 + MATLAB 上手 | 各自能出"第一次作业" |
-| **交付一** | W4–W5 | 建模提参数 → 交 J 表 | Simulink 搭通第一个模型 | **参数 v1 交接**（xlsx→json→仿真） |
+| **交付一** | W4–W5 | 建模提参数 → 交 J 表 | Simulink 搭通第一个模型 | **参数 v1 交接**（csv→sync→仿真） |
 | **深化** | W6–W8 | 联轴器选型给 Ks、ω_n | 四策略 Simulink 对比复现 | **Simulink 与 C 结果对上** |
 | **联合** | W9–W10 | 弹性参数进模型、参与分析 | 弹性传动链仿真 + 机电协同分析 | **联合仿真首轮闭环** |
 | **冲刺** | W11–W12 | 报告机械章 + 图纸 | 参数扫描/鲁棒性 + 创新点验证 | **验收全部 PASS** |
@@ -82,10 +82,10 @@
 ### W4（10/19–10/25）：🚩 交付一 —— 参数 v1
 
 #### 🔧 干活
-- **机械组（头等大事）**：把 4 台电机 `J`（绕电机轴）填进 `mechanical/params/motor_params.xlsx` B 列；`B` 查轴承手册或经验值 1e-3 量级。
-- **电控组**：组长带跑通全链路一次 `xlsx → json → merge → 编译 → 仿真 → 验收判定`（命令见 `docs/collaboration.md`）。
+- **机械组（头等大事）**：把 4 台电机 `J`（绕电机轴）填进 `data/shared/mech_deliverables.csv`（机械组唯一手写入口）；`B` 查轴承手册或经验值 1e-3 量级；填完跑 `tools/sync_mech_to_elec.py`。
+- **电控组**：组长带跑通全链路一次 `csv → sync → merge → 编译 → 仿真 → 验收判定`（命令见 `docs/collaboration.md`）。
 - **全组公共**：周会 30 分钟。
-- **里程碑**：机械参数 v1 交接完成（xlsx 交出 + 转换入库）。
+- **里程碑**：机械参数 v1 交接完成（`mech_deliverables.csv` 填妥 + 跑 sync 入库）。
 
 #### 📚 学习
 - **电控组**：★ Simulink 入门（增益/积分/求和/示波器、设仿真时间）、★ 信号与系统开（时域/频域）、○ 线性代数（矩阵乘，为偏差耦合铺垫）。
@@ -143,7 +143,7 @@
 ### W9（11/23–11/29）：🚩 联合仿真首轮
 
 #### 🔧 干活
-- **机械组**：把选定 `Ks/Ds` 正式填进 `mech_params.json`（走 xlsx→转换脚本），交付 v2。
+- **机械组**：把选定 `Ks/Ds` 正式填进 `data/shared/mech_deliverables.csv` 并跑 `tools/sync_mech_to_elec.py`（自动写回 `mech_params.json`），交付 v2。
 - **电控组**：跑**弹性传动链双惯量模型**（Ks>0 自动启用），观察同步误差变化，记录三档 Ks 对比数据。
 - **里程碑**：机械改动 → 电控重跑 → 指标对比，**协同闭环转完第一圈**。
 
@@ -301,7 +301,7 @@
 | 时点 | 检查项 | 负责人 |
 |---|---|---|
 | W1 末 | 全员 Git 三件套走通 | 组长 |
-| W4 末 | 机械参数 v1 交接（xlsx 填完并转换入库） | 机械 |
+| W4 末 | 机械参数 v1 交接（`mech_deliverables.csv` 填完并跑 sync 入库） | 机械 |
 | W6 末 | ω_n 计算交付 | 机械 |
 | W8 末 | 中期检查通过、Simulink 四电机跑通 | 全组 |
 | W9 末 | 联合仿真首轮闭环（弹性参数进模型出数据） | 机械+电控 |
@@ -347,7 +347,7 @@
 **🔧 所有活（W1–W13 机械组交付物 + 公共）**
 1. W1：查 3 篇文献，各写 5 行摘要交 `mechanical/docs/`
 2. W3：CATIA 简化传动链（转子 + 联轴器 + 负载盘）；Measure Inertia（切 MKS）
-3. W4：4 台电机 `J` 填 `motor_params.xlsx` B 列；`B` 查手册/经验 1e-3
+3. W4：4 台电机 `J` 填 `data/shared/mech_deliverables.csv`；`B` 查手册/经验 1e-3
 4. W5：查 2~3 联轴器手册，抄 `Ks` 候选值填交接单第 3 节
 5. W6：算各方案 `ω_n = √(Ks·(1/J₁+1/J₂))` 并交付
 6. W7：写机构简图 + 参数来源说明，充实 `plant_model.md`
@@ -390,7 +390,7 @@
 1. W1：安装 MATLAB；学 MATLAB 基础 + `plot(sin)`；MATLAB 一小时入门
 2. W2：MATLAB 画 `J*dw/dt = Te − B*w` 仿真曲线
 3. W3：吃透 `J·dω/dt = Te − B·ω − T_L` + PI 控制
-4. W4：跑通全链路 `xlsx→json→merge→编译→仿真→验收判定`；Simulink 入门
+4. W4：跑通全链路 `csv→sync→merge→编译→仿真→验收判定`；Simulink 入门
 5. W5：Simulink 单电机 + PI 转速环，跑出启动曲线
 6. W6：Simulink 四电机版，复现「主从」策略曲线
 7. W7：复现 CCC/DCC 曲线，与 C 版对比；试复现 DCC+DOB
@@ -466,3 +466,49 @@ MATLAB readmatrix   Python 画图（对比 / 出图）
 - MATLAB 勾选 **Simulink + Control System Toolbox**；做物理建模加 Simscape，做控制器调参加 Simulink Control Design。
 - Python 用 Anaconda 新建环境后 `pip install numpy matplotlib`（不要动系统 Python）。
 - 全组版本锁死在 `docs/rules.md`「环境锁定」，任何人装软件先对照，**禁止私自升版本**导致结果不可复现。
+
+---
+
+## 九、本科生 Day-1 上手清单（零基础照抄即可）
+
+> 目标：**入组第一天结束前跑通一次完整仿真**，看到四策略对比图 + baseline 指标。
+> 全部命令都在**仓库根目录**执行（脚本按自身位置解析路径，但输出走相对路径）。
+
+### 9.1 装环境（半天）
+
+1. **Python 3.12（Anaconda）** → 装完 `pip install numpy matplotlib`
+2. **gcc 13.2.0**（MinGW-w64 便携包，全组同一份，避免版本漂移）
+3. **Git**（想用图形界面装 SourceGit）
+4. 自检：`python --version`、`gcc --version` 都能出版本号 = 装好了
+
+### 9.2 跑通第一次仿真（6 条命令）
+
+```bash
+python tools/sync_mech_to_elec.py        # ① 机械参数 csv → 自动生成 json + 头文件（含 ω_n）
+python electrical/c/merge_params.py      # ② 合并成仿真参数
+gcc -O2 -o build/multi_motor_sync.exe electrical/c/multi_motor_sync.c -lm   # ③ 编译
+build\multi_motor_sync.exe                # ④ 运行 → 出 csv + 控制台指标
+python electrical/c/plot_results.py      # ⑤ 画图
+python electrical/c/check_acceptance.py  # ⑥ 验收判定
+```
+
+看到 `results/` 下三张图 + 控制台四策略指标汇总 = **Day-1 通关**。
+
+### 9.3 第一天必须记住的三件事
+
+1. **参数只在 `data/shared/mech_deliverables.csv` 手填**——`mech_params.json` 和 `multi_motor_sync.c` 都不要碰（前者自动生成，后者是内核）。
+2. **四策略 baseline 排序**：主从最差、DCC+DOB 最好（指标见 `README.md`）。**后面所有改进都跟这条 baseline 比**，不准换口径。
+3. **本项目要解决的头号问题**：`g=100` vs `ω_n=331.66` → `g/ω_n=0.30`，**远未达到 2~5 倍覆盖**（详见 `docs/Follow-up/innovation.md` §二）。先记住有这个缺口，W10 起攻它。
+
+### 9.4 卡住了先查这三处
+
+| 现象 | 最可能的原因 |
+|---|---|
+| 编译报错 / 结果算错 | 用了 **tcc**（本项目已禁用，实测有传参 bug），**必须 gcc** |
+| 改了参数但仿真没变 | 漏了第 ① 步 `sync`（见 `docs/rules.md` §3.1） |
+| 图/输出文件找不到 | 没在**仓库根目录**运行（输出走相对路径） |
+
+### 9.5 第一周内读完的两份文档
+
+- `docs/collaboration.md` —— 两组数据边界 + 每次迭代的命令
+- `docs/Follow-up/innovation.md` —— 三层创新点，知道自己**为什么在做**这件事

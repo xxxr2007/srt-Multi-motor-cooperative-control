@@ -94,6 +94,12 @@ C 程序编译运行后输出 CSV，plot_results.py 只读 CSV 出图，绘图�
 这张表就是"**带宽-刚度匹配**"协同设计准则的实证：机械刚度决定控制带宽需求，
 控制带宽反过来约束联轴器选型。Ks 到手后下一轮迭代方向：陷波滤波器（notch @ ω_n）
 或 DOB 带宽调度，把第三行的 RMS 压回基线附近。
+
+> ⚠️ **ω_n 口径提醒**：本表 `ω_n`（199 / 49 / 629）是按**早期假设 `J₁=J₂=0.01`** 算的；
+> 而 `data/shared/mech_deliverables.csv` 现值（`J1=0.002, J2=0.02, Ks=200`）经
+> `tools/sync_mech_to_elec.py` 实算为 **`ω_n=331.66`**（已自动写入 `mech_params.json`）。
+> **以 sync 脚本自动算出的值为准**；机械组拍板 J₁/J₂ 真值后统一刷新本表（详见 `docs/Follow-up/innovation.md` §二）。
+> 另：当前 `g=100` → `g/ω_n=0.30`，**远未覆盖 2~5 倍**，这是弹性档全面劣化的根因，W10 须先解决。
 <!--
 ### 同步误差 RMS
 全程同步偏差的均方根，越小表示转速跟得越齐；耦合类策略较主从降低约 48%。
@@ -122,13 +128,13 @@ C 程序编译运行后输出 CSV，plot_results.py 只读 CSV 出图，绘图�
 srt-multi-motor/
 ├─ README.md        项目说明（本文件）
 ├─ data/            ★ 两组公共接口区（参数单一数据源）
-│   ├─ mechanical/  机械组交付参数 mech_params.json（机械组唯一写入口）
+│   ├─ shared/      mech_deliverables.csv 机械组唯一手填表（跑 sync 自动写回 mech_params.json）
+│   ├─ mechanical/  mech_params.json（由 csv 经 sync 脚本自动生成，勿手改）
 │   ├─ electrical/  电控组控制参数 ctrl_params.json（电控组唯一写入口）
 │   ├─ params.json  合并产物（自动生成，勿手改）
 │   └─ acceptance.json  验收规则（压到什么程度算过）
 ├─ mechanical/      ★ 机械组地盘
 │   ├─ cad/         CATIA 模型（走 Git LFS，勿直接大文件提交）
-│   ├─ params/      motor_params.xlsx 机械组手填表（转 json 后生效）
 │   └─ docs/        plant_model.md 参数交接单、机构简图等机械文档
 ├─ electrical/      ★ 电控组地盘
 │   ├─ c/           C 仿真内核（主入口）+ merge_params.py + check_acceptance.py + plot_results.py

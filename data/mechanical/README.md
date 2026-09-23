@@ -9,26 +9,26 @@
 
 | 文件 | 谁维护 | 说明 |
 |---|---|---|
-| `motor_params.xlsx` | **机械组** | **推荐入口**：Excel 手填表（在 `mechanical/params/` 文件夹），填完跑转换脚本自动生成 json |
-| `mech_params.json` | 机械组（经脚本生成） | 参数真源：由 xlsx 转换生成、进 git 可追溯；也可直接手改（字段说明见下） |
+| `mech_params.json` | 由 sync 脚本自动生成 | 参数真源：由 `data/shared/mech_deliverables.csv` 经 `tools/sync_mech_to_elec.py` 写回，进 git 可追溯；**禁止手改**（手填请去 csv） |
 | `README.md` | 电控组 | 本说明，不用改 |
 
-### 1.1 Excel 路线（推荐，不用碰 JSON 语法）
+### 1.1 csv 路线（当前唯一推荐入口，不用碰 JSON 语法）
 
 ```
-① 打开 mechanical/params/motor_params.xlsx，只填 B 列（值）
-② 仓库根目录运行转换（二选一）：
-     python electrical/c/xlsx_to_mech_json.py          # 装了 openpyxl 的话
-     uv run --no-project --with openpyxl python electrical/c/xlsx_to_mech_json.py
-③ 脚本自动生成 data/mechanical/mech_params.json → 按下面第 3 节流程交付
+① 打开 data/shared/mech_deliverables.csv（机械组唯一手填表，列：param,value,unit,week,note）
+② 只填 value 列（J/B/Ks/Ds 等），单位见 unit 列
+③ 仓库根目录运行同步：
+     python tools/sync_mech_to_elec.py
+   → 自动写回 data/mechanical/mech_params.json + 生成 electrical/src/params_from_mech.h（含 ω_n 与建议带宽 2~5×）
+④ 把 csv 和生成的 json/h 一起 git add + commit（电控组 pull 即拿到）
+⑤ 群里说一声"机械参数 vN 已更新"
 ```
 
-> 表丢了/坏了：`python electrical/c/xlsx_to_mech_json.py --make-template` 重新生成模板。
-> `version` 记得每次交付 +1。
+> ω_n 由脚本按 √(Ks·(1/J₁+1/J₂)) 自动算，不用手填；`version` 记得每次交付 +1（写在 csv 的 note 或同步维护）。
 
 ---
 
-## 2. 怎么填 `mech_params.json`（走 Excel 路线的可跳过本节）
+## 2. `mech_params.json` 字段说明（供理解与排错，**手填请去 csv**）
 
 按下面的字段说明填，**只改数值和文字，不要改字段名**：
 （JSON 里双引号必须成对、逗号不能多也不能少，写完把文件拖进 VS Code 看有没有红波浪线）
@@ -67,7 +67,7 @@
 > ω_n = √( Ks × (1/J1 + 1/J2) )
 > ```
 >
-> 填进 `omega_n_rad_s` 字段。电控组的观测器带宽必须覆盖它的 2~5 倍。
+> 脚本会自动算并写进 `mech_deliverables_resolved.json` 与 `params_from_mech.h`，无需手填。电控组的观测器带宽必须覆盖它的 2~5 倍。
 
 ### 2.4 `load_physics` —— 负载工况的物理来源
 

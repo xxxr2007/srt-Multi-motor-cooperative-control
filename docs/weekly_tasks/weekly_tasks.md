@@ -152,8 +152,8 @@
   - 电控组：全链路操作 checklist / 排错手册（组员可复用）　`[1 h]`
   - 机械组：J 折算到电机轴说明 + 建模文件命名规范 `motor_N_*.CATPart`　`[0.5 h]`
   - 全组：每周周会 30 分钟（对齐进度、过机电接口）　`[0.5 h]`
-  - 机械组：4 台电机 `J`、`B` 填进 `motor_params.xlsx` 并转换入库　`[4 h]`
-  - 电控组：跑通全链路 `xlsx → json → merge → 编译 → 仿真 → 验收判定`　`[3.5 h]`
+  - 机械组：4 台电机 `J`、`B` 填进 `data/shared/mech_deliverables.csv` 并跑 `tools/sync_mech_to_elec.py`（自动写回 `mech_params.json`）　`[4 h]`
+  - 电控组：跑通全链路 `csv → sync → merge → 编译 → 仿真 → 验收判定`　`[3.5 h]`
 - **验收物**
   - 机械组：填完的 xlsx + 入库 json　`[1 h]`
   - 电控组：Simulink 单电机框图截图　`[1 h]`
@@ -326,7 +326,7 @@
   - 全组：跨组接口对齐 15 min（机械改 Ks → 电控重跑 → 指标对比）　`[0.25 h]`
   - 电控组：每次仿真图按 `fig_W9_{策略}_{指标}.png` 存 + 重要数据 `*.csv+json` 留存　`[0.5 h]`
   - 全组：每周周会 30 分钟（对齐进度、过机电接口）　`[0.5 h]`
-  - 机械组：`Ks/Ds` 填进 `mech_params.json`（走 xlsx→转换脚本），交付 v2　`[4 h]`
+  - 机械组：`Ks/Ds` 填进 `data/shared/mech_deliverables.csv` 并跑 `tools/sync_mech_to_elec.py`（自动写回 `mech_params.json`），交付 v2　`[4 h]`
   - 电控组：跑双惯量模型，记录三档 `Ks` 对比数据　`[5 h]`
 - **验收物**
   - 机械组：`mech_deliverables.csv` v2 + 生成的 `electrical/src/params_from_mech.h`　`[1.5 h]`
@@ -474,7 +474,7 @@
 
 - **过关条件（全部满足才算学习期结束）**：
   1. 四策略（主从 / CCC / DCC / DCC+DOB）各出 ≥ 1 张仿真曲线
-  2. 全链路仿真能稳定跑通（`xlsx→json→merge→编译→仿真→验收`）
+  2. 全链路仿真能稳定跑通（`csv→sync→merge→编译→仿真→验收`）
   3. W0–W13 周报齐全（每人按 `组员周报提交表.md` 提交）
   4. 学习期成果报告定稿 + 寒假前交付冻结
 - **判定人**：组长（沈修竹）

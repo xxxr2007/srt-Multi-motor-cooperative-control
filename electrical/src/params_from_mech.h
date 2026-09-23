@@ -3,11 +3,12 @@
 #define PARAMS_FROM_MECH_H
 
 #define MECH_Ks 200.0  /* 联轴器扭转刚度 [N*m/rad] 柔性联轴器选型定案（双惯量弹性环节刚度） */
+#define MECH_Ds 0.005  /* 联轴器扭转阻尼 [N*m*s/rad] 联轴器扭转阻尼（与 Ks 配套，抑制谐振峰） */
 #define MECH_J1 0.002  /* 电机侧等效惯量 [kg*m2] 含转子+编码器+小齿轮折算到电机轴 */
 #define MECH_J2 0.02  /* 负载侧等效惯量 [kg*m2] 末端执行器折算到电机轴 */
-#define MECH_B 0.01  /* 粘性阻尼系数 [N*m*s/rad] 轴承+密封+齿轮啮合等效 */
+#define MECH_B 0.01  /* 粘性阻尼系数 [N*m*s/rad] 轴承+密封+齿轮啮合等效（电机/负载侧） */
 #define MECH_i 1.0  /* 传动比 [] 负载已折算到电机轴则填1；否则填减速比 */
-#define MECH_wr 120.0  /* 额定转速 [rad/s] 仿真基准转速（≈1146 rpm） */
+#define MECH_wr 120.0  /* 额定转速 [rad/s] 仿真基准转速（≈1146 rpm，仅参考，真值由电控 ctrl_params.json 给定） */
 #define MECH_WN 331.6625  /* 双惯量无阻尼固有频率 rad/s */
 
 #endif

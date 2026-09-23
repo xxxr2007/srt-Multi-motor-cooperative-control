@@ -9,7 +9,7 @@
 
 | 文件 | 归属 | 内容 | 谁能改 |
 |---|---|---|---|
-| `data/mechanical/mech_params.json` | **机械组** | 转动惯量 J、黏性摩擦 B、联轴器刚度 Ks、阻尼 Ds、负载物理来源 | 只有机械组 |
+| `data/mechanical/mech_params.json` | 由 sync 脚本自动生成 | 转动惯量 J、黏性摩擦 B、联轴器刚度 Ks、阻尼 Ds、负载物理来源（**真正手填入口是 `data/shared/mech_deliverables.csv`**） | 机械组禁止手改（改 csv 后由 `tools/sync_mech_to_elec.py` 重写） |
 | `data/electrical/ctrl_params.json` | **电控组** | 控制增益、DOB 带宽 g、仿真设置、工况时序与幅值 | 只有电控组 |
 | `data/params.json` | 脚本生成 | 两组参数合并结果 | **谁都不许手改** |
 | `build/params_generated.h` | 脚本生成 | 给 C 内核的宏定义 | **谁都不许手改** |
@@ -123,11 +123,11 @@ python electrical/c/plot_results.py        # ⑤ 出图（需要时）
 ## 七、常见问题
 
 **Q：机械组的参数还没算准，仿真能先跑吗？**
-能。`mech_params.json` 里现在是占位值（与现有仿真同口径），先跑起来，
+能。`mech_deliverables.csv` 里现在是占位值（与现有仿真同口径），跑 `tools/sync_mech_to_elec.py` 后写回 `mech_params.json`，先跑起来，
 机械组后续替换并递增版本号即可。不要等"全部算准"才开工。
 
 **Q：改了参数但仿真结果没变？**
-多半是漏了第 ① 步（没跑 `merge_params.py`），或者 C 内核没重新编译。
+多半是漏了第 ① 步（没跑 `tools/sync_mech_to_elec.py` 或没跑 `merge_params.py`），或者 C 内核没重新编译。
 
 **Q：`data/params.json` 我能直接改吗？**
 不能。它是合并产物，下次合并会被覆盖。要改就往两个源文件里改。

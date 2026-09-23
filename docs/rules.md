@@ -26,8 +26,8 @@
 
 - **唯一填写处**：机械组所有要交给电控组的参数（J₁ / J₂ / B / Ks / Ds / 联轴器型号等）**只填 `data/shared/mech_deliverables.csv`**，禁止电控组另存一份手填（避免两处不一致、来回对不上）。
 - **同步动作（机械组改完 CSV 必做）**：
-  1. 跑 `python tools/sync_mech_to_elec.py` → 自动生成 `electrical/src/params_from_mech.h`（含 ω_n 与建议带宽 2~5×）。
-  2. 把 `mech_deliverables.csv` **和** 生成的 `params_from_mech.h` 一起 `git add` + `commit`（头文件是生成物，但随源数据一起提交，电控组 pull 即拿到）。
+  1. 跑 `python tools/sync_mech_to_elec.py` → ① 自动写回 `data/mechanical/mech_params.json`（代码真正读取的源）② 生成 `electrical/src/params_from_mech.h`（含 ω_n 与建议带宽 2~5×）③ 自动调用 `merge_params.py` 生成 `data/params.json` + `build/params_generated.h`。
+  2. 把 `mech_deliverables.csv` **和** 生成的 `mech_params.json` + `params_from_mech.h` 一起 `git add` + `commit`（生成物随源数据一起提交，电控组 pull 即拿到）。
 - **电控组动作**：`git pull` 后重编仿真内核即可，无需再填任何机械参数；代码里 `#include "params_from_mech.h"` 直接读。
 - **带宽校验（呼应创新点二）**：头文件顶部有 `MECH_WN` 与 `MECH_WN_BAND_MIN/MAX`，电控组对比 DOB/陷波带宽是否覆盖 `2~5×ω_n`；不满足就在周会提，触发机械组重选刚度。
 - 数据流总图见 `docs/three_month_plan.md` §八；ω_n 计算书见 `data/shared/mech_deliverables_resolved.json`。

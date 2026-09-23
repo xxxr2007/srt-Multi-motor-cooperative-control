@@ -1,7 +1,7 @@
 ﻿# 机械侧参数交接单（Plant Model 参数表）
 
 > 用途：机械组把 CATIA 建模得到的**核心参数**填在本表里（说明物理含义与来源），
-> 同时把同样的数值写进机器可读的 `data/mechanical/mech_params.json`。
+> 同时把同样的数值填进 `data/shared/mech_deliverables.csv`（机械组唯一手写入口），跑 `tools/sync_mech_to_elec.py` 会自动写回机器可读的 `data/mechanical/mech_params.json`。
 > 电控组执行 `electrical/c/merge_params.py` 后，仿真参数自动更新。
 > 本表是两组的**交接单**——格式不要改，只填"机械组填写"那一列。
 
@@ -106,7 +106,7 @@ T_L(折算到电机轴) = T_load / (i · η)      ← 转矩折算要除 i·η
 CATIA 建模（先简化：只留电机转子 + 联轴器 + 主要负载）
    ↓ 导出 MKS 单位的质量属性
 填本表（第 2、3 节，说明物理含义与来源）
-   ↓ 同时把数值写进 data/mechanical/mech_params.json（版本号 +1）
+   ↓ 同时把数值填进 data/shared/mech_deliverables.csv，跑 tools/sync_mech_to_elec.py 写回 mech_params.json（版本号 +1）
 提交：git add data/mechanical/ → commit → push，群里通知
    ↓ 电控组执行
 python electrical/c/merge_params.py      ← 合并 + 校验（含 ω_n 与带宽匹配检查）
