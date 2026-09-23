@@ -4,4 +4,4 @@ numpy>=1.26
 pandas>=2.0
 matplotlib>=3.7
 jupyter>=1.0
-# 注：C 仿真内核不依赖 Python；MATLAB/Simulink、CATIA 为正版授权软件，版本见 docs/environment.md
+# 注：C 仿真内核不依赖 Python；MATLAB/Simulink、CATIA 为正版授权软件，版本见 docs/rules.md「环境锁定」一节

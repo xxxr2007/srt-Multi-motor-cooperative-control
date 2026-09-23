@@ -136,22 +136,23 @@ srt-multi-motor/
 │   └─ matlab/      MATLAB：multi_motor_sync_matlab.m 参照实现；run_c_sim.m 一键调 C 版仿真；
 │                   params_setup.m Simulink 参数装载脚本
 ├─ docs/            公共文档：control_scheme.md 方案与公式推导；collaboration.md 两组协同机制；
-│                   three_month_plan.md 13 周总计划；study_plan.md 知识点字典；
+│                   three_month_plan.md 13 周总计划（study_plan.md 已并入，仅指路）；周报/ 组员周报提交仓库；meetings/ 组会模板；
 │                   weekly_tasks/ 周任务执行表（W0–W13，组长改）；
-│                   Formal Written Report/ 组员周报提交表（组员填）；开题/结题材料
+│                   周报/ 组员周报提交表（组员填，模板）；开题/结题材料
 ├─ build/           编译产物 + 参数头文件（已 gitignore）
 └─ results/         输出：转速曲线、同步误差对比、指标柱状图、CSV 数据（已 gitignore）
 ```
 
 ## 环境依赖
 
-| 工具 | 版本 | 用途 |
+| 工具 | 版本（全组锁定，W0 由组长确认） | 用途 |
 |---|---|---|
-| C 编译器 | MinGW-w64 gcc 16.2（`C:\Users\31394\.workbuddy\binaries\mingw64\bin`） | 编译仿真内核 |
-| Python | 3.13 + numpy 2.5 + matplotlib 3.11 | 仅画图 |
+| C 编译器 | MinGW-w64 gcc **13.2.0**（WinLibs Release 便携包，全组同一份，避免版本漂移） | 编译仿真内核 |
+| Python | **3.12**（Anaconda，包见 `requirements.txt`） | 出图 / `check_acceptance.py` / 参数扫描 |
+| MATLAB / Simulink | **2024b** | 四电机建模、四策略仿真、出图 |
+| CATIA | **V5-6 2022** | 机械建模、测惯量 J / B |
 
-> ⚠️ 实测 TinyCC 0.9.27 (x64) 对本代码存在传参代码生成 bug（混合 double/int 参数的
-> 函数会算错），**不要用 tcc 编译本项目**，一律用 gcc。
+> 组长开发机实测用 gcc 16.2 / Python 3.13 可跑通，但**全组交付以锁定版 13.2.0 / 3.12 为准**（见 `docs/rules.md` 环境锁定）。⚠️ 实测 TinyCC 0.9.27 (x64) 对本代码存在传参代码生成 bug（混合 double/int 参数的函数会算错），**不要用 tcc 编译本项目**，一律用 gcc。
 <!--
 ### 编译器警告
 实测发现 TinyCC 0.9.27 (x64) 对本项目存在代码生成 bug，统一改用 gcc 编译。
@@ -213,9 +214,12 @@ C 版参数在 multi_motor_sync.c 顶部"参数区"的宏定义中，与 data/pa
 |---|---|
 | [three_month_plan.md](docs/three_month_plan.md) | 13 周总计划：交付节奏、分工、学习总地图 |
 | [three_month_plan.md](docs/three_month_plan.md) §二–§三 | 系统上课**知识点字典**已并入总计划（★核心 / ○加分，不绑教材章号） |
-| [weekly_tasks/weekly_tasks.md](docs/weekly_tasks/weekly_tasks.md) | **周任务执行表**：W0–W13 逐周，含负责人 / 系统课知识点 / 交付物 / 验收物 / 交叉接口 / 状态 / 备注；**时间按电控组 / 机械组 / 全组公共三组分开统计**（电控 ≈160 h、机械 ≈140 h、公共 ≈19 h、总 ≈320 h），组长直接在此改 |
-| [weekly_tasks_iteration.md](docs/weekly_tasks_iteration.md) | **迭代期周表**：W13 之后约一年（机电协同迭代创新），按轮次记录 机械创新→交付→电控更新→反馈 闭环，组长/岗位直接在此填轮次进展 |
-| [Formal Written Report/组员周报提交表.md](docs/Formal%20Written%20Report/%E7%BB%84%E5%91%98%E5%91%A8%E6%8A%A5%E6%8F%90%E4%BA%A4%E8%A1%A8.md) | **组员每周正式提交处**：每周五前填好本周所学、学习证明、项目交付物、验收物，交给组长 |
+| [weekly_tasks/weekly_tasks.md](docs/weekly_tasks/weekly_tasks.md) | **周任务执行表**：W0–W13 逐周，含负责人 / 系统课知识点 / 交付物 / 验收物 / 交叉接口 / 状态 / 备注；**时间按电控组 / 机械组 / 全组公共三组分开统计**（电控 175.5 h、机械 154.2 h、公共 14.2 h、总 344.0 h，各组周均 ≈13.5 / 11.9 / 1.1 h），组长直接在此改 |
+| [weekly_tasks_iteration.md](docs/Follow-up/weekly_tasks_iteration.md) | **迭代期周表**：W13 之后约一年（机电协同迭代创新），按轮次记录 机械创新→交付→电控更新→反馈 闭环，组长/岗位直接在此填轮次进展 |
+| [annual_innovation_plan.md](docs/Follow-up/annual_innovation_plan.md) | **年度创新总览**：W13 之后约一年（2027 全年）阶段轴与里程碑，迭代期周表的上级计划 |
+| [周报/组员周报提交表.md](docs/周报/组员周报提交表.md) | **组员周报模板**：含 W1–W13 全周空白表单，每人每周复制本周段存为 `W{周}/{姓名}.md`，每周六 22:00 前交给组长 |
+| [周报/](docs/周报/) | **组员周报提交仓库**：每人每周 `W{周}/{姓名}.md`，模板见 `组员周报提交表.md`，组长示例 `W1/沈修竹.md` |
+| [meetings/README.md](docs/meetings/README.md) | **组会 / 评审会 / 纪要模板**：唯一模板源，组规只写何时开 |
 
 > 项目是算法仿真（不烧板）：主线自控 + 电机理论 + 电路分析 + 信号/复变/线代 + C（读仿真内核）+ Python（出图）+ MATLAB/Simulink；STM32 / 电力电子 / 模电为实物阶段才用的加分项。
 

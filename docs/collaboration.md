@@ -77,6 +77,8 @@ python electrical/c/plot_results.py        # ⑤ 出图（需要时）
 
 **重点**：这套规则**开题时冻结，中途不许改**。改了阈值再说"达标"，等于没达标。
 
+> 通俗解释版（设计目标、单位更直观）见 `docs/acceptance_metrics.md` §二；本文档 §四 才是冻结的唯一权威阈值，由 `check_acceptance.py` 自动判定。
+
 未启用的规则：稳定裕度（相位裕度 ≥ 45°、幅值裕度 ≥ 6 dB）——需要先实现频率响应计算，
 `acceptance.json` 里 `robustness.enabled` 置 `true` 才会参与判定。
 
