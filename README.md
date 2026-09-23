@@ -220,6 +220,10 @@ C 版参数在 multi_motor_sync.c 顶部"参数区"的宏定义中，与 data/pa
 | [周报/组员周报提交表.md](docs/周报/组员周报提交表.md) | **组员周报模板**：含 W1–W13 全周空白表单，每人每周复制本周段存为 `W{周}/{姓名}.md`，每周六 22:00 前交给组长 |
 | [周报/](docs/周报/) | **组员周报提交仓库**：每人每周 `W{周}/{姓名}.md`，模板见 `组员周报提交表.md`，组长示例 `W1/沈修竹.md` |
 | [meetings/README.md](docs/meetings/README.md) | **组会 / 评审会 / 纪要模板**：唯一模板源，组规只写何时开 |
+| [innovation.md](docs/Follow-up/innovation.md) | **创新点专述**：三层创新 + 创新方向提示（机械/电控）+ 2024–2026 最新研究概括 + 文献检索网站 |
+| [competitions.md](docs/competitions.md) | **跨组比赛方向**：机械/电控单打 + 联合可打赛事、要做什么、与 SRT 共同点 |
+| [literature_watch.md](docs/Follow-up/literature_watch.md) | **每日文献速递**（自动化每日 09:00 追加）：电控+机械各 3~4 篇最新文献 + 可参考方向 |
+| [mech_deliverables.csv](data/shared/mech_deliverables.csv) | **跨组数据同步·机械组唯一填写处**：填一次 → 跑 `tools/sync_mech_to_elec.py` → 电控组 `electrical/src/params_from_mech.h` 直接读，免重复手填 |
 
 > 项目是算法仿真（不烧板）：主线自控 + 电机理论 + 电路分析 + 信号/复变/线代 + C（读仿真内核）+ Python（出图）+ MATLAB/Simulink；STM32 / 电力电子 / 模电为实物阶段才用的加分项。
 

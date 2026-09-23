@@ -414,3 +414,55 @@
 - W9 起每周固化：跨组接口对齐 15min（机械改 Ks → 电控重跑 → 指标对比闭环，W9 起每周都做，不只是 W9/W10）★
 - 每个里程碑补物化证据文件：W8「Simulink vs C 对比图存 `results/`」、W9「联合仿真首轮数据 csv」、W11「验收 PASS 报告」○
 - 仿真结果命名 + 重要数据 csv+json 留存：全员每次仿真执行（规则见 `rules.md` §4，命名 `fig_W{周}_{策略}_{指标}.png`）★
+
+---
+
+## 八、软件与工具链（怎么装 / 怎么用 / 互相衔接）
+
+> 与 `docs/rules.md`「环境锁定」配套——这里不讲版本，**讲用法与衔接**。本科生零基础照着做即可。
+> 跨组数据自动同步机制见 `data/shared/` + `tools/sync_mech_to_elec.py`（机械组填一次，电控组直接读，不重复手填）。
+
+### 8.1 全家桶清单（全组统一版本见 rules.md）
+
+| 软件 | 用途 | 谁用 | 关键模块 / 插件 |
+|---|---|---|---|
+| **CATIA V5-6** | 机械 3D 建模 / 装配 / 工程图 / 质量属性 | 机械组 | Part Design、Generative Drafting、（可选）DMU 运动机构 |
+| **MATLAB 2024b + Simulink** | 控制仿真、四策略验证、可生成 C 交叉验证 | 电控组 | Simulink、Control System Toolbox、（可选）Simscape、Simulink Control Design |
+| **gcc (MinGW-w64) 13.2.0** | 编译 C 仿真内核 | 电控组 | 无插件，命令行即可 |
+| **Python 3.12 (Anaconda) + numpy/matplotlib** | 读 `data/results` 画图 | 电控组 | `pip install numpy matplotlib` |
+| **Git + SourceGit** | 版本 / 协作 | 全员 | SourceGit 图形界面，免命令 |
+| （可选）**ANSYS Workbench** | 有限元 / 模态分析校验 ω_n | 机械组 | Modal 模块 |
+
+### 8.2 各自怎么用（最小可行）
+
+- **CATIA**：Part Design 建转子 / 联轴器 / 负载盘 → `Measure Inertia`（切 MKS 单位）取 `J₁/J₂/B` → Generative Drafting 出工程图；导出 `STEP` 给 ANSYS。
+- **MATLAB/Simulink**：搭 `J·dω/dt = Te − B·ω − T_L` 单 / 四电机；Control System Toolbox 看伯德图；Simulink Coder 可生成 C 与内核对照。
+- **gcc**：仓库内 `gcc -O2 electrical/src/sim.c -o sim && ./sim` 出 `csv/json`。
+- **Python**：`python plot_results.py` 读 `data/results/*.csv` 出图。
+
+### 8.3 软件之间怎么衔接（关键：数据流，避免重复填）
+
+```
+CATIA 质量属性
+   │ (人工录入一次)
+   ▼
+data/shared/mech_deliverables.csv   ← 机械组唯一填写处
+   │ 跑 tools/sync_mech_to_elec.py
+   ▼
+electrical/src/params_from_mech.h   ← 电控组直接拿到，不重复手填 ★
+   │
+C 仿真内核 ──► data/results/*.csv+json
+   │                │
+   ▼                ▼
+MATLAB readmatrix   Python 画图（对比 / 出图）
+```
+
+- **Simulink ↔ C 内核**：同一组公式，四策略互相验证（W8 里程碑「Simulink 与 C 结果对上」）。
+- **（可选）ANSYS 模态 ω_n ↔ 公式 √(Ks·(1/J₁+1/J₂))**：交叉校验机械组给的刚度。
+
+### 8.4 插件 / 模块安装要点
+
+- CATIA 安装时勾选 **Part Design + Generative Drafting**（建模出图够用）；想做运动仿真再加 DMU。
+- MATLAB 勾选 **Simulink + Control System Toolbox**；做物理建模加 Simscape，做控制器调参加 Simulink Control Design。
+- Python 用 Anaconda 新建环境后 `pip install numpy matplotlib`（不要动系统 Python）。
+- 全组版本锁死在 `docs/rules.md`「环境锁定」，任何人装软件先对照，**禁止私自升版本**导致结果不可复现。

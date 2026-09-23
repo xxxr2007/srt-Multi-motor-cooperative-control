@@ -1,0 +1,55 @@
+{
+  "params": [
+    {
+      "param": "联轴器扭转刚度",
+      "symbol": "Ks",
+      "value": "200",
+      "unit": "N*m/rad",
+      "week": "W4",
+      "note": "柔性联轴器选型定案（双惯量弹性环节刚度）"
+    },
+    {
+      "param": "电机侧等效惯量",
+      "symbol": "J1",
+      "value": "0.002",
+      "unit": "kg*m2",
+      "week": "W3",
+      "note": "含转子+编码器+小齿轮折算到电机轴"
+    },
+    {
+      "param": "负载侧等效惯量",
+      "symbol": "J2",
+      "value": "0.02",
+      "unit": "kg*m2",
+      "week": "W3",
+      "note": "末端执行器折算到电机轴"
+    },
+    {
+      "param": "粘性阻尼系数",
+      "symbol": "B",
+      "value": "0.01",
+      "unit": "N*m*s/rad",
+      "week": "W4",
+      "note": "轴承+密封+齿轮啮合等效"
+    },
+    {
+      "param": "传动比",
+      "symbol": "i",
+      "value": "1",
+      "unit": "",
+      "week": "W3",
+      "note": "负载已折算到电机轴则填1；否则填减速比"
+    },
+    {
+      "param": "额定转速",
+      "symbol": "wr",
+      "value": "120",
+      "unit": "rad/s",
+      "week": "W1",
+      "note": "仿真基准转速（≈1146 rpm）"
+    }
+  ],
+  "derived": {
+    "wn_rad_s": 331.6625
+  }
+}
