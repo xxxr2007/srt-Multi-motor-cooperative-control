@@ -22,6 +22,16 @@
 - 哪些算「重要」：四策略对比图、刚度扫描曲线、鲁棒性 PASS 结果、每轮迭代指标——以后写论文/申专利直接调
 - 大文件（CAD/STEP）走 Git LFS，别直塞仓库
 
+## 3.1 跨组单一数据源协作流程（机械组填一次，电控组直接读）
+
+- **唯一填写处**：机械组所有要交给电控组的参数（J₁ / J₂ / B / Ks / Ds / 联轴器型号等）**只填 `data/shared/mech_deliverables.csv`**，禁止电控组另存一份手填（避免两处不一致、来回对不上）。
+- **同步动作（机械组改完 CSV 必做）**：
+  1. 跑 `python tools/sync_mech_to_elec.py` → 自动生成 `electrical/src/params_from_mech.h`（含 ω_n 与建议带宽 2~5×）。
+  2. 把 `mech_deliverables.csv` **和** 生成的 `params_from_mech.h` 一起 `git add` + `commit`（头文件是生成物，但随源数据一起提交，电控组 pull 即拿到）。
+- **电控组动作**：`git pull` 后重编仿真内核即可，无需再填任何机械参数；代码里 `#include "params_from_mech.h"` 直接读。
+- **带宽校验（呼应创新点二）**：头文件顶部有 `MECH_WN` 与 `MECH_WN_BAND_MIN/MAX`，电控组对比 DOB/陷波带宽是否覆盖 `2~5×ω_n`；不满足就在周会提，触发机械组重选刚度。
+- 数据流总图见 `docs/three_month_plan.md` §八；ω_n 计算书见 `data/shared/mech_deliverables_resolved.json`。
+
 ## 4. 提交与 Deadline
 - 周报：每周六 22:00 前交，格式用 `组员周报提交表.md`
 - 交付物：每周六 22:00 前交
