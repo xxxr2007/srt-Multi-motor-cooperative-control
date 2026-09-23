@@ -93,4 +93,4 @@
 - `three_month_plan.md`：仅 W1–W13 学习期；本表是其**后续延伸**，不重叠。
 - `annual_innovation_plan.md`：年度总览；本表是**逐轮执行展开**。
 - `weekly_tasks.md`：W1–W13 逐周表（学习期成果在 W12/W13 冻结，tag `v1.0-learn`）。
-- `study_plan.md`：系统课字典，迭代期只补**系统辨识 / 机械振动**两项项目必需技能（已在 W1–W13 排入）。
+- `three_month_plan.md`（§二–§三）：系统课字典已并入总计划；迭代期只补**系统辨识 / 机械振动**两项项目必需技能（已在 W1–W13 排入）。

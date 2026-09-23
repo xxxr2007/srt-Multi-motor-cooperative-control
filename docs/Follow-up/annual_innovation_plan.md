@@ -80,4 +80,4 @@
 
 - `three_month_plan.md`：仅覆盖 W1–W13 学习期，本计划是其**后续延伸**，不重叠
 - `weekly_tasks.md`：W1–W13 逐周执行表；本计划的迭代期建议另建 `weekly_tasks_iteration.md` 逐轮记录（待定）
-- `study_plan.md`：系统课字典，本阶段不再新增课程
+- `three_month_plan.md`（§二–§三）：系统课字典已并入总计划，本阶段不再新增课程
