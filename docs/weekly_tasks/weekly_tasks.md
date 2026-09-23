@@ -329,7 +329,7 @@
   - 机械组：`Ks/Ds` 填进 `mech_params.json`（走 xlsx→转换脚本），交付 v2　`[4 h]`
   - 电控组：跑双惯量模型，记录三档 `Ks` 对比数据　`[5 h]`
 - **验收物**
-  - 机械组：`mech_params.json` v2　`[1.5 h]`
+  - 机械组：`mech_deliverables.csv` v2 + 生成的 `electrical/src/params_from_mech.h`　`[1.5 h]`
   - 电控组：三档 `Ks` 对比数据 / 曲线　`[1.5 h]`
   - 里程碑：机械改动 → 电控重跑 → 指标对比，**协同闭环转完第一圈**
 - **交叉接口动作**：**★ 机械组 → 电控组 交付 `Ks/Ds` 进 `mech_params.json` v2**
