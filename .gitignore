@@ -48,3 +48,6 @@ build/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ===== WorkBuddy 项目本地数据（记忆/自动化配置等，非代码）=====
+.workbuddy/
