@@ -7,6 +7,52 @@
 
 ---
 
+## 📅 2026-09-26（每日自动推送）
+
+### 🔌 电控侧（多电机同步 / 先进控制）近期进展 2024–2026
+1. **Liu J., Yang J., Wang Z., Chen K.** *Ring-Coupled Nonlinear Adaptive PI Coordinated Control Strategy for Multi-PMSMs with Event-Triggered Mechanism*, **Machines**, 2026, 14(8):869. — 环耦多 PMSM + **事件触发非线性自适应 PI**：自适应律估不确定性、事件触发机制实时更新控制量，四 PMSM 环耦台架信号传输较时间触发减少 **92.1%**，精度相当。DOI:10.3390/machines14080869
+2. **Wei W., Zhou Z., Liu Y., Wang J.** *Model-free adaptive predictive synchronous control of multiple PMSMs under multi-agent dynamic event triggering*, **Engineering Research Express**, 2025, 7:035363. — **无模型自适应预测同步 + 多智能体动态事件触发**：基于 I/O 数据建动态线性化模型，各 PMSM 为 agent 跟踪 leader，动态事件触发协议省通信，实验验证有效。DOI:10.1088/2631-8695/ae000a
+3. **Wang Z., Gao X.** *High-precision synchronous control for multi-motor system: an event-triggered model predictive iterative learning approach*, **Measurement Science and Technology**, 2026. — **事件触发 MPC + 迭代学习（EMPIL）+ 终端积分滑模**：集总不确定性建模 + 差分动态解耦主动补偿，迭代学习 + 终端积分滑模抑扰，事件触发嵌入滚动时域省算力通信，机器人关节多电机角度高精度 + 协同一致 + 节能。DOI:10.1088/1361-6501/aea2b2
+4. **Lu W., Lu S., Zheng S., Song B.** *Load-side resonant suppression based on adaptive state feedback and decoupled sliding-mode observer for servo system*, **Trans. Institute of Measurement and Control**, 2025, 48(11):2882–2892. — 双惯量**解耦滑模观测器（DSMO）**同时估负载转矩与惯量（解耦项消除与转速误差的耦合、降抖振）+ 自适应状态反馈调负载侧阻尼，压负载侧振荡、提谐振抑制效率。DOI:10.1177/01423312251361587
+
+### ⚙️ 机械侧（双惯量 / 柔性传动 / 谐振 / 设计）近期进展 2024–2026
+1. **戴昊, 鲁文其, 鲁玉军 等** *基于自适应陷波滤波器的永磁伺服系统共振抑制*, **电子科技**, 2025, 38(9):58. — 双惯量弹性负载系统，推导电机惯量与机械谐振频率关系；**可调带宽/深度陷波（双线性变换）+ 归一化估计算法在线辨识谐振频率**，辨识精度 **1.87%**，稳态转速误差 6.0%→2.8%，双谐振点 1.28 s 内更新。DOI:10.16180/j.cnki.issn1007-7820.2025.09.008
+2. **Wang L.** *Multi-inertia servo transmission system for motor under composite control algorithm considering resonance point changes*, **Int. J. of Dynamics and Control**, 2025, 13(6). — 多惯量耦合模型 + **预测模型 + 三参数陷波**复合控制，陷波随谐振点变化实时估并主动抑制，冲击负载下速度响应 ≤502 r/min，优于对比。DOI:10.1007/s40435-025-01743-1
+3. **Zhang J., Zheng C., Qian H., et al.** *Resonance mechanism analysis of flexible shaft transmission system*, **IET Conference Proceedings**, 2024 (Online 2025), 2024(13):1033–1039. — 柔钢轴多直线作动器同步场景，建双惯量伺服模型 → 扩展**三惯量模型**，分析谐振主因，为更鲁棒控制奠基（北航）。DOI:10.1049/icp.2024.3027
+4. **（电气传动 2025）** *双惯量系统高阻尼位置控制参数设计（谐振比控制）*, **电气传动**, 2025(1). — 在传统三环控制基础上结合**谐振比控制**提高速度闭环阻尼、优化闭环零点，提出高阻尼位置控制参数设计，不同惯量比下性能一致、显著降到位抖动。链接：https://castjournals.cast.org.cn/joweb/dqcd/CN/PDF/1190325457112367765
+
+### 💡 本批「可参考方向」
+- **事件触发 + 多智能体同步（低通信开销新基线）**：把 Liu 2026 的环耦非线性自适应 PI + 事件触发（信号传输降 92.1%）与 Wei 2025 的无模型自适应预测 + 动态事件触发结合，作本项目四电机台架的"低通信开销同步"对照基线——特别适合 W13 之后迭代期或分布式/网络化部署，呼应 `innovation.md`「多智能体事件触发」方向。（→ §五 候选点：电控·无模型自适应预测 + 多智能体事件触发）
+- **事件触发 MPC + 迭代学习（EMPIL）作快速预测新基线**：Wang 2026 的"事件触发 + MPC + 迭代学习 + 终端积分滑模"在机器人关节多电机上实现角度高精度 + 协同一致 + 节能，可直接对照本项目四策略，作"无权重因子快速预测"对照，呼应创新点三逐轮迭代寻优。（→ §五 候选点：电控·模型预测同步（无权重因子快速预测））
+- **解耦滑模观测器（DSMO）估负载惯量/转矩 + 自适应状态反馈压负载侧谐振**：Lu 2025 的双惯量 DSMO 同时估负载转矩与惯量（解耦项消耦合、降抖振）+ 自适应状态反馈调负载侧阻尼，正可接进本项目 DCC+DOB 作"高阶滑模观测"进阶，且直接服务创新点二谐振抑制（负载侧振荡是 `g/ω_n=0.30` 缺口之外的另一短板）。（→ §五 候选点：电控·高阶滑模 + 扩张状态滑模观测（平均偏差耦合进阶））
+- **在线自适应陷波（治 `g/ω_n=0.30` 缺口，最优先）**：戴昊 2025（双惯量弹性负载、谐振频率在线辨识精度 1.87%）+ Wang L. 2025（预测模型 + 三参数陷波随谐振点变化自适应）把本项目"经验定 g=100"升级为"据 ω_n 在线辨识 + 自整定陷波"，直接补创新点二 `g/ω_n=0.30` 欠阻尼缺口，优先做（对应 `innovation.md` ④ 最小验证路径）。（→ §五 候选点：机械·谐振频率在线辨识 + 自适应陷波）
+- **三惯量扩展 + 谐振比控制（带宽-刚度匹配再升级）**：Zhang 2024 IET 的柔轴双惯量→三惯量建模 + 电气传动 2025 的谐振比控制（按惯量比/谐振比定速度环结构），把本项目线性双惯量扩成三惯量、并按"带宽-刚度匹配"量化选刚度（谐振比落优区），形成创新点二进阶 + 创新点三方法论新证据，也呼应机械组刚度分级选型（→ §五 候选点：机械·柔性联轴器刚度分级 / 可调）。（→ §五 候选点：机械·三惯量扩展）
+
+---
+
+## 📅 2026-09-25（每日自动推送）
+
+### 🔌 电控侧（多电机同步 / 先进控制）近期进展 2024–2026
+1. **Li M. et al.** *Adaptive NN Observer-Based Synthesize Strategy for Connected Nonlinear Multi-Motor Servo System*, **IEEE Trans. Automation Science and Engineering**, 2025. — 自适应**滑模扰动观测器**（有限时间收敛）+ 自适应 NN 跟踪 + 滑模同步控制，处理联网非线性同构多电机的同步与全状态约束。DOI:10.1109/TASE.2025.3564331
+2. **Wang J., Liu Y., Wang B., Cai M.** *Recursive Sliding Mode Control of Dual-Motor Synchronous Drive Servo System Based on Disturbance Observer*, **Trans. Institute of Measurement and Control**, 2026 (OnlineFirst). — **递推非奇异终端滑模（RNFTSM）** + 每机独立**有限时间扰动观测器**前馈 + 同步反馈信号，四滑面有限时间收敛、抑制抖振。DOI:10.1177/01423312261471936
+3. **Wang M., He E., Ma D., Zhou P., Wang Z.** *Data-Driven Adaptive Synchronous Control for Multi-PMSM Drive Systems under Severe Asymmetrical Load Disturbances*, **Electrical Engineering (Springer)**, 2026, 108:409. — **超扭曲滑模区间观测器**实时估集总负载扰动前馈 + 自适应 NFTSMC，六电机 TBM 缩比台架：非对称负载下转矩同步 RMSE 暂态降 88.6%、稳态降 93.7%（对比 PI-VACC）。DOI:10.1007/s00202-026-03769-w
+4. **Zhang X., Chen J., Sun Z., et al.** *Speed Collaborative Pre-Compensation Control of Dual PMSM Systems*, **Journal of Power Electronics**, 2026, 26(6):1347–1361. — 引入 **MPC 增量预测模型**，最小化含同步/跟踪误差的价值函数得最优补偿量 v1/v2，提前注入 q 轴电压，结构简单、调节时间更短。DOI:10.1007/s43236-025-01149-4
+
+### ⚙️ 机械侧（双惯量 / 柔性传动 / 谐振 / 设计）近期进展 2024–2026
+1. **Yang J., Pan Z., Cheng G., Yu X.** *Low-Frequency Vibration Suppression Strategy Based on Dual Observers*, **37th Chinese Control and Decision Conference (CCDC)**, 2025. — 针对双惯量系统提出**双扩张状态观测器（双 ESO）**机械谐振抑制，Bode 分析 + Simulink/实验证有效压转速振动。DOI:10.1109/CCDC65474.2025.11090940
+2. **Li C.** *Research on Resonance Suppression Methods for Servo Systems*, **LNEE (China Electrotechnical Society Annual Conf.)**, 2026, 1581:381–391. — 双惯量建模解析固有/反谐振频率，对比**陷波 / PI 极点配置 / ADRC** 三法，ADRC 在压谐振、抑超调、动态稳定上综合最优。DOI:10.1007/978-981-95-7652-4_41
+3. **Wang B., Pan J., Xu D.** *Logarithmic Chirp Identification and Decoupled Analytical Active Damping for Mid-Low Frequency Resonance in Dual-Inertia Servo Systems*, **IEEE Trans. Power Electronics**, 2026, 41(12):20828–20841. — **对数扫频（log chirp）辨识**反/谐振 + **解析有源阻尼**（q 轴电流注入，极点配到 ζ=0.707 免整定）+ **低频偶极子隔绝 DC 负载**，49/140 Hz 实验速度纹波衰减 >96.99%。DOI:10.1109/TPEL.2026.3715682
+4. **Tie Y., Li X., et al.** *Modeling and Pole Placement Control for Vibration Suppression in Motor-Gear Coupled Systems with Friction Torque*, **Proc. Inst. Mech. Eng. Part C (SAGE)**, 2026 (OnlineFirst). — 建含**齿轮摩擦转矩 + 背隙**的二惯量模型，基于极点配置的多环路主动扰动抑制，降超调、增稳定。DOI:10.1177/09544070261454575
+
+### 💡 本批「可参考方向」
+- **自适应有源阻尼 + 偶极子隔直（治 g/ω_n=0.30 缺口）**：把 Bo Wang 2026 的「解析有源阻尼（极点配 ζ=0.707）+ 低频偶极子隔绝 DC 负载」与 Yang 2025 的「双 ESO」结合，把本项目「经验定 g=100」升级为「据 ω_n 解析整定有源阻尼 + 偶极子隔直」，直接对应创新点二当前 `g/ω_n=0.30` 欠阻尼缺口，优先做。（→ §五 候选点：电控·自适应陷波 / 有源阻尼系统化设计（替代经验定 g））
+- **PLL-ESO / ADRC 谐振观测接进 DCC+DOB**：Li Changzhi 2026 用 ADRC 比 notch/PI 更优地压谐振；连同已有吴春 2024 的 PLL-ESO，可把「机械谐振前馈补偿」嫁接进本项目 DCC+DOB，作创新点一进阶基线。（→ §五 候选点：电控·PLL-ESO 谐振观测）
+- **含齿隙/摩擦的非线性双惯量建模**：Tie 2026 的电机-齿轮耦合二惯量（齿轮摩擦 + 背隙）正可替换本项目线性 Ks-Bs 对象，让仿真更贴真实，反哺创新点一/二。（→ §五 候选点：机械·含齿隙/摩擦的非线性双惯量模型）
+- **超扭曲滑模区间观测应对非对称负载**：Meng Wang 2026 的「超扭曲滑模区间观测器 + 自适应 NFTSMC」在六电机 TBM 台架把非对称负载下转矩同步 RMSE 降 88.6%（暂态）/93.7%（稳态），可直接对照本项目「参数摄动 + 单机突加负载」场景，作 DCC+DOB 的强扰动对照基线。（→ §五 候选点：电控·高阶滑模 + 扩张状态滑模观测（平均偏差耦合进阶））
+- **MPC 速度协同预补偿（四策略之外的新基线）**：Zhang Xiuyun 2026 的 MPC 增量预测 + q 轴电压前补偿思路，可作四策略之外的「快速预测同步」新基线，呼应 W9–W13 迭代寻优，也可与 Wang 2025 动态耦合增益组合。（→ §五 候选点：电控·模型预测同步（无权重因子快速预测））
+
+---
+
 ## 📅 2026-09-24（每日自动推送）
 
 ### 🔌 电控侧（多电机同步 / 先进控制）近期进展 2024–2026
