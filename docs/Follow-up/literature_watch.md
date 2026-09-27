@@ -7,6 +7,29 @@
 
 ---
 
+## 📅 2026-09-27（每日自动推送）
+
+### 🔌 电控侧（多电机同步 / 先进控制）近期进展 2024–2026
+1. **Zhao J., Cai T., Xiong M., Yang C.** *Reinforcement Learning and Singular Perturbation-Based Optimal Speed Synchronous Control of a Flexible Coupling Dual-PMSM System*, **IEEE Trans. Industrial Informatics**, 2025, 21(12):9757–9766. — 面向**柔性耦合双 PMSM** 系统提出**无模型强化学习（RL）最优速度同步**控制：奇异摄动提取慢时间尺度降阶模型，RL 迭代学得最优速度调节器，时变参考下同步跟踪与暂态响应优于现有方案（中国矿大）。DOI:10.1109/TII.2025.3606936
+2. **（电机与控制应用 2026）** *基于自抗扰与自适应偏差耦合的多电机协同控制策略*, **电机与控制应用**, 2026（网络首发 2026-07-10）. — 单轴速度环引入 ADRC 统揽内扰 + 突加冲击；针对固定增益协同太"死板"，设计**高斯自适应偏差耦合**调节器：常态平滑死区包容非对称相位滞后，强冲击时高斯阶跃瞬时激发高协同刚度，瞬态最大协同误差降 **60%**、恢复时间缩 **40%~66.7%**（装甲观瞄云台）。链接：https://www.motor-abc.cn/djykzyy/article/html/20260710
+3. **Gao P., Zhao C., Pan H., Fang L.** *A Model-Free Fractional-Order Composite Control Strategy for High-Precision Positioning of PMSM*, **Fractal and Fractional**, 2025, 9:161. — **无模型分数阶复合控制**：超扭曲双分数阶微分滑模（STDFDSMC）+ 互补型扩张状态观测器（CESO）前馈补偿内外扰，降抖振且保收敛，PMSM 精密定位优于整数阶方案。DOI:10.3390/fractalfract9030161
+4. **Cui Y., Qu P., Liu C.** *Study on Coordinated Control Strategy of Multi-Pass Straight Drawing Machine System*, **Energies**, 2026, 19(7):1798. — LADRC 入速度环 + **卷尾猴搜索算法（CapSA）整定 LADRC 参数**，并改传统偏差耦合引入误差因子强化动态同步；拉丝多电机仿真显示超调与同步误差显著下降。DOI:10.3390/en19071798
+
+### ⚙️ 机械侧（双惯量 / 柔性传动 / 谐振 / 设计）近期进展 2024–2026
+1. **Wang X., Su Y., Luo Y., et al.** *Fractional-Order Modeling and Identification for Dual-Inertia Servo Inverter Systems with Lightweight Flexible Shaft or Coupling*, **Fractal and Fractional**, 2025, 9(4). — 把整数阶双惯量扩到**分数阶**以更准刻画轻量柔轴/柔联轴器的粘弹与记忆特性；用输出误差法 + **Levenberg–Marquardt（LM）算法**辨识参数，PMSM 伺服实验平台验证谐振捕捉精度提升（正对 `innovation.md` §五「LM 算法辨识」候选）。DOI:10.3390/fractalfract9040222
+2. **Su Y., Wang X., Luo Y., Liang T., Chen Y.Q.** *Disturbance and Vibration Suppression of A Dual-Inertia Servo System with Fractional-Order Model*, **IFAC-PapersOnLine**, 2025, 59(37):91–96. — 分数阶双惯量伺服模型 + **滑模观测器（SMO）**估状态 + 补偿化为三积分器 + 级联控制器抑扰抑振，分数阶建模比整数阶更贴真实柔传系统。链接：https://www.sciencedirect.com/science/article/pii/S2405896326000169
+3. **Gong L., Tao J., Xiong Q., Chen J., Hua Z.** *Vibration Control for Active Magnetic Bearing Rotor System Based on Parameter Adaptive-PSO and Notch Filter*, **IEEE Trans. Industrial Electronics**, 2026, 73:1122. — **参数自适应粒子群（PA-PSO）自动整定陷波器**参数压制临界转速区共振峰，Sigmoid 非对称协同机制平衡全局/局部搜索；方法可直接迁移到双惯量伺服"按 ω_n 系统化整定陷波"。DOI:10.1109/TIE.2025.3595976
+4. **Zhang F., Chen J., Hu Y., Gao Z., Lv G., Lin Q.** *Disturbance Rejection-Guarded Learning for Vibration Suppression of Two-Inertia Systems*, **arXiv:2404.10240**, 2024. — 提出**学习增强型 ESO（L-ESO）**：机器学习记忆并预测扰动、ESO 做反馈校正兜底，二惯量运动控制实验台验证扰动估计更快更鲁棒（"学习赋能控制"范式）。链接：https://arxiv.org/abs/2404.10240
+
+### 💡 本批「可参考方向」
+- **无模型强化学习 + 奇异摄动最优同步（四策略之外的新智能基线）**：Zhao 2025 直接针对"柔性耦合双 PMSM"（与本项目双惯量弹性对象同构）做无模型 RL 最优速度同步，可对照四策略、作"智能优化同步"新基线，呼应 `innovation.md`「无模型自适应预测」方向（本科生先跑仿真对照即可，不必真上 RL 训练）。（→ §五 候选点：电控·无模型自适应预测 + 多智能体事件触发）
+- **高斯自适应偏差耦合（动态协同刚度，最贴合本项目）**：把电机与控制应用 2026 的"高斯自适应偏差耦合"搬进本项目偏差耦合/DCC——常态低协同刚度包容相位滞后、强扰时瞬时高协同刚度，正好对应把固定耦合权重升级为随工况自适应的**动态耦合增益**，且瞬态协同误差降 60% 的实证可直接作对照。（→ §五 候选点：电控·动态耦合增益）
+- **分数阶超扭曲滑模 + 互补 ESO/SMO（降抖振）**：Gao 2025 的 STDFDSMC + CESO 与 Su 2025 的分数阶双惯量 SMO，把本项目"整数阶滑模 + ESO"升级为分数阶，更准捕捉柔传非线性、降抖振，可作 DCC+DOB 的"高阶滑模观测"进阶基线。（→ §五 候选点：电控·高阶滑模 + 扩张状态滑模观测（平均偏差耦合进阶））
+- **系统化整定陷波/有源阻尼（治 `g/ω_n=0.30` 缺口，优先）**：Cui 2026 用 LADRC + 群智能（CapSA）系统化整定 + 改进偏差耦合，Gong 2026 用 PA-PSO 自动整定陷波器参数——共同把本项目"经验定 g=100"升级为"据 ω_n / 群智能系统化整定陷波与有源阻尼"，直接补创新点二 `g/ω_n=0.30` 欠阻尼缺口。（→ §五 候选点：电控·自适应陷波 / 有源阻尼系统化设计（替代经验定 g））
+- **分数阶双惯量建模 + LM 辨识（机械侧，直接补 §五 候选）**：Wang 2025 用 LM 算法辨识分数阶双惯量参数、Su 2025 分数阶 SMO 抑振，把本项目线性 Ks-Bs 扩成分数阶并给出可落地辨识流程，直接支撑"分数阶双惯量系统建模与参数辨识"候选；Lin 2024 的 L-ESO（学习增强 ESO）则顺带为 W13 后"数字孪生/边缘计算"的数据驱动扰动估计埋下种子。（→ §五 候选点：机械·分数阶双惯量系统建模与参数辨识）
+
+---
+
 ## 📅 2026-09-26（每日自动推送）
 
 ### 🔌 电控侧（多电机同步 / 先进控制）近期进展 2024–2026
