@@ -7,6 +7,29 @@
 
 ---
 
+## 📅 2026-09-29（每日自动推送）
+
+### 🔌 电控侧（多电机同步 / 先进控制）近期进展 2024–2026
+1. **Zhang D., Zhao L., Han X. 等** *Robust coordinated fault-tolerant control for aerospace multi-motor synchronous drive systems against inverter fault*, **Measurement and Control** (UK), 2026. — 针对多无刷直流电机**相邻交叉耦合**同步驱动，提出基于协同控制理论（synergetic control）的容错协调律：以扰动观测器 + 自适应技术抵消负载扰动，**逆变器故障下仍优先保证同步精度**；三重电机系统仿真与实验验证有效。DOI:10.1177/00202940261419018
+2. **Sun G., Li F., Li C.** *Finite Time Adaptive Sliding Mode Control of Multi-Motor Based on Prescribed Performance*, **LNEE (ICMIC 2026)**, 2026, 1495:225–233. — 把**预设性能控制（PPF）**与**自适应非奇异快速终端滑模（NFTSMC）+ 扰动观测器（DO）**结合：PPF 把角跟踪误差约束在预设界内、NFTSMC 增强鲁棒、DO 估扰补偿，Lyapunov 证有限时间收敛；多电机伺服仿真验证。DOI:10.1007/978-981-95-3312-1_20
+3. **Ma P., Li Z., Zhao J., Zhang N., Zhang Z.** *Lateral Stability and Synchronization Control for Dual-Motor Steer-by-Wire Vehicles*, **Symmetry**, 2026, 18(5):828. — 分层控制：上层 **MPC** 跟踪侧滑角/横摆率保横向稳定，下层 **ESO-复合趋近律滑模（ESO-CRLSMC）** 解决双电机参数失配与速度同步；硬件在环验证时变扰动/参数失配下同步与鲁棒性更优。DOI:10.3390/sym18050828
+4. **Zhang G., Zhang P., Hua W., Fan Y., Guo X., Xu X.** *Improved deviation coupling control for multi-motor speed synchronization with PSO-based parameter optimization*, **Journal of Power Electronics**, 2025（online 2025-08-04；26(5):1211–1224, 2026）. — 在偏差耦合骨架（含虚拟电机）上引入**同步系数 + 跟踪系数**两个可调耦合增益，独立整定稳态/启动的同步与跟踪性能，并用**粒子群（PSO）优化**两系数；三电机实验验证优于传统偏差耦合。DOI:10.1007/s43236-025-01133-y
+
+### ⚙️ 机械侧（双惯量 / 柔性传动 / 谐振 / 设计）近期进展 2024–2026
+1. **Zhang Z., Yang M., Lan P., Zhang X., Lv Z.** *Resonance Ratio Control for Vibration and Disturbance Suppression in Force Servoing*, **PCIM Asia Shanghai Conference 2025**, 2025. — 针对双惯量谐振系统提出 **PD + 谐振比控制（RRC）**：由**扰动观测器估反向转矩**定电机-臂谐振频率比、经极点配置抑扭振与扰动；并给出 DOB 最优速度，化解"DOB 需远快于谐振频率"的实现难题。DOI:10.30420/566583058
+2. **Luo W., Li H., Zhang R., Zhang J., Vazquez S., Leon J.I., Wang X., Franquelo L.G.** *MPC-Based Sliding Mode Control of Dual-Inertia System Analysis*, **Energies**, 2026, 19(1):226. — 建**双惯量弹性模型**刻画弹性变形 + **背隙非线性**，提出分层架构：速度环 **Luenberger-观测器 MPC** + 电流环**超螺旋滑模（ST-SMC）**，同时实现状态估计增强鲁棒、滑模抑高频振动、MPC 约束传动轴转矩；比 PI/陷波 PI 更能压谐振与转矩纹波。DOI:10.3390/en19010226
+3. **Lu S., Lu W., Zheng S., Song B., Li H.** *Double-Feedback Design Using an Estimation Network for Servo Resonance Suppression*, **IEEE Trans. Transportation Electrification**, 2025, 11(6):13203–13212. — 提出**五扩展滑模观测器（ESMO）估计网络**并行估**负载转速、电机惯量、负载惯量、刚度系数、负载转矩**，支撑**差分转速 + 轴转矩双反馈**经零极点配置抑机械谐振，并补偿负载转矩变化；仿真+实验验证。DOI:10.1109/TTE.2025.3600315
+4. **Wang K., Huang G., Wang Z., Fan B.** *Adaptive synchronization control based on prescribed performance for dual-motor drive system*, **Proc. Inst. Mech. Eng. Part C (J. Mech. Eng. Sci.)**, 2026（OnlineFirst）. — 针对双电机驱动的**齿轮磨损、背隙、参数不确定**导致的死区非线性与模型失配，用连续函数近似死区 + **改进预设性能函数**约束暂态，反步框架 + 自适应律在线估传动参数、补偿背隙偏置转矩；实验证位置跟踪提升、转矩振荡抑制。DOI:10.1177/09596518261455945
+
+### 💡 本批「可参考方向」
+- **交叉耦合容错结构，把 DCC 鲁棒性推向"故障工况"**：Zhang D. 2026 在相邻交叉耦合骨架上加扰动观测器 + 自适应，使三重电机在逆变器故障下仍优先保同步精度——可作本项目 DCC+DOB 的"强扰动/故障"对照基线，本科生先在四策略脚本里给偏差耦合/DCC 加一个故障/扰动注入开关，对比正常 vs 故障的同步误差，反哺创新点一鲁棒性论证。（→ §五 候选点：电控·状态均值偏差耦合拓扑（解耦同步与跟踪））
+- **高阶滑模 + 预设性能/ESO 观测，作 DCC+DOB 进阶**：Sun G. 2026 的 PPF+NFTSMC+DO 把"收敛+瞬态约束"打包进有限时间滑模，Ma P. 2026 的 ESO-CRLSMC+MPC 用 ESO 估扰动解决双电机参数失配与同步——两者都可替换本项目一阶 DOB 为"高阶滑模 + ESO 观测"，收敛更快、对初值/参数更不敏感，直接呼应创新点一"DOB 再进阶"。（→ §五 候选点：电控·高阶滑模 + 扩张状态滑模观测（平均偏差耦合进阶））
+- **可调耦合增益（同步/跟踪系数）+ PSO 优化，是"动态耦合增益"直接落地参照**：Zhang G. 2025 在偏差耦合上引入同步系数 + 跟踪系数两个可调增益并经 PSO 寻优，比固定权重更灵活、且能独立整定稳态/启动性能——正是本项目 `innovation.md`「动态耦合增益」候选的现成实现，本科生可直接把这两个系数搬进 `control_dcc.c` 替代固定权重，呼应 W9–W13 迭代寻优。（→ §五 候选点：电控·动态耦合增益）
+- **在线辨识 ω_n 与机械参数 + 自整定/反馈，治 g/ω_n=0.30（最优先）**：Zhang Z. 2025 的"DOB 估反向转矩定谐振比 + 极点配置"与 Lu S. 2025 的"五 ESMO 并行估刚度/惯量/负载转矩"共同把本项目"经验定 g=100"升级为"据 ω_n 与机械参数在线辨识 + 自整定"，直接补 `g/ω_n=0.30` 欠阻尼缺口；本科生可先用 sync 脚本算出的 ω_n 接一个 Luenberger/ESMO 在线估刚度模块，对比固定 g vs 自适应。（→ §五 候选点：机械·谐振频率在线辨识 + 自适应陷波）
+- **含齿隙/死区非线性双惯量对象，让仿真更贴真实**：Energies 2026 把双惯量扩成"弹性变形 + 背隙非线性"并用 Luenberger-MPC/ST-SMC 抑振，Wang K. 2026 在双电机驱动中处理齿轮磨损/背隙/死区并做预设性能自适应同步——两者都可替换本项目线性 Ks-Bs 为含齿隙/死区非线性，使参数摄动/换向冲击场景更真，反哺创新点一/二的鲁棒性论证。（→ §五 候选点：机械·含齿隙/摩擦的非线性双惯量模型）
+
+---
+
 ## 📅 2026-09-28（每日自动推送）
 
 ### 🔌 电控侧（多电机同步 / 先进控制）近期进展 2024–2026
