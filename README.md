@@ -1,4 +1,4 @@
-﻿# SRT 仿真项目（srt-Multi-motor-cooperative-control）
+# SRT 仿真项目（srt-Multi-motor-cooperative-control）
 **多电机协作控制仿真研究**：面向多电机驱动的移动装备（多轮独立电驱动底盘、多执行机构作业平台等），
 研究参数不一致与负载突变条件下多台电机的**转速同步控制**，在对比三种经典策略的基础上，
 提出并验证了"偏差耦合 + 扰动观测器(DOB)前馈"复合创新策略。
@@ -220,7 +220,7 @@ C 版参数在 multi_motor_sync.c 顶部"参数区"的宏定义中，与 data/pa
 |---|---|
 | [three_month_plan.md](docs/three_month_plan.md) | 13 周总计划：交付节奏、分工、学习总地图 |
 | [three_month_plan.md](docs/three_month_plan.md) §二–§三 | 系统上课**知识点字典**已并入总计划（★核心 / ○加分，不绑教材章号） |
-| [weekly_tasks/weekly_tasks.md](docs/weekly_tasks/weekly_tasks.md) | **周任务执行表**：W0–W13 逐周，含负责人 / 系统课知识点 / 交付物 / 验收物 / 交叉接口 / 状态 / 备注；**时间按电控组 / 机械组 / 全组公共三组分开统计**（电控 175.5 h、机械 154.2 h、公共 14.2 h、总 344.0 h，各组周均 ≈13.5 / 11.9 / 1.1 h），组长直接在此改 |
+| [weekly_tasks/weekly_tasks.md](docs/weekly_tasks/weekly_tasks.md) | **当前周任务执行表**：2026-10-12 起 W3–W22 共 20 个有效学习周，每人每周 9 h，考试/休息周顺延；历史计划单独保留。辅导材料见 [learning_resources.md](docs/weekly_tasks/learning_resources.md) |
 | [weekly_tasks_iteration.md](docs/Follow-up/weekly_tasks_iteration.md) | **迭代期周表**：W13 之后约一年（机电协同迭代创新），按轮次记录 机械创新→交付→电控更新→反馈 闭环，组长/岗位直接在此填轮次进展 |
 | [annual_innovation_plan.md](docs/Follow-up/annual_innovation_plan.md) | **年度创新总览**：W13 之后约一年（2027 全年）阶段轴与里程碑，迭代期周表的上级计划 |
 | [周报/组员周报提交表.md](docs/周报/组员周报提交表.md) | **组员周报模板**：含 W1–W13 全周空白表单，每人每周复制本周段存为 `W{周}/{姓名}.md`，每周六 22:00 前交给组长 |

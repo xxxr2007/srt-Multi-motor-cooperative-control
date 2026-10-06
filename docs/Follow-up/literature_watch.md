@@ -7,6 +7,75 @@
 
 ---
 
+## 📅 2026-10-06（每日自动推送）
+
+### 🔌 电控侧（多电机同步 / 先进控制）近期进展 2024–2026
+1. **Xu Y., Liu C., Huang Z., Sun S., Cui Z.** *Research on Coordinated Control of Multi-PMSM for Shaftless Overprinting System*, **Symmetry**, 2025, 17(6):958–979. — 三电机轴less印刷系统，提出**加权平均优化偏差耦合补偿器（NDCS）** + 新型到达律滑模（NSMC）+ 改进超扭曲电流环，动态响应快 38.7%、稳态转速偏差压至 0.2 r/min、峰偏差 ≤8 r/min。DOI:10.3390/sym17060958
+2. **Zhu Z.** *MAS-Based Cooperative Control of Multi-PMSM Systems*, **2025 5th Int. Conf. on Mechanical, Electronics and Electrical and Automation Control (METMS 2025)**, 2025, pp.162–165. — 把多 PMSM 化为**多智能体一致性**问题，设计分布式滑模协议（常速到达律 + 线性滑面、邻域同步误差渐近收敛）+ **滑模扰动观测器**前馈补偿负载扰动；相较传统相对耦合（RCC）在同步误差、动态响应与可扩展性上均占优。DOI:10.1109/METMS65303.2025.11047911
+3. **(IEEE 2025)** *Synchronous control of multiple motors based on deviation coupling*. — 在偏差耦合骨架上引入**极值（最大/最小）模块动态调节电机间耦合关系**，突加载时实时优化速度补偿、缩短动态响应；三 PMSM 仿真证同步精度与抗扰显著提升。DOI:10.1109/11041975（IEEE Xplore 文档 11041975）
+4. **Wu J., Huang X., Liu C.** *Extended state observer based adaptive fuzzy sliding mode control for multi-motor systems*, **Physica Scripta**, 2025, 100(1):015203. — 用多电机**耦合误差**设计非奇异滑模，以**扩张状态观测器（ESO）**估集总扰动、用**自适应模糊**替代不连续切换项抑抖振，固定时间收敛到小邻域；对比实验控制精度与响应速度优于传统控制器。DOI:10.1088/1402-4896/ad94ad
+
+### ⚙️ 机械侧（双惯量 / 柔性传动 / 谐振 / 设计）近期进展 2024–2026
+1. **Wang B., Ji R., Zhou C., Liu K., Hua W., Ye H.** *Online Identification Method for Mechanical Parameters of Dual-Inertia Servo System*, **Energies**, 2025, 18(1):79. — 基于**遗忘因子递推最小二乘（FFRLS）**在线同时辨识双惯量系统的**转子惯量、负载惯量、轴刚度**（误差 <10%），DSP 28335 平台验证，为"据 ω_n 自适应整定陷波"提供机械参数在线来源。DOI:10.3390/en18010079
+2. **He Y., Zhao K., Yi Z., Huang Y.** *Improved Terminal Sliding Mode Control of PMSM Dual-Inertia System with Acceleration Feedback Based on Finite-Time ESO*, **Progress In Electromagnetics Research M**, 2025, 134:21–30. — 速度环引入**加速度反馈**建立双惯量模型，改进到达律使收敛速度自适应调整，设计**有限时间扩张状态观测器（FTESO）**估扰并前馈补偿 INTSMC，仿真与实验证抗扰能力显著提升。DOI:10.2528/PIERM25040405
+3. **（制造技术与机床 2026）** *中大型直驱转台双惯量机电耦合建模*. — 建**三惯量运动链**（电机转子 J₁ / 连接套 J₂ / 工作台 J₃）并降阶为双惯量，给出**静态刚度 Ks,stat 与动态刚度 Ks,dyn 两种等效准则**（第一扭振 672.8 Hz vs 降阶 773.6 Hz），是"三惯量扩展 + 刚度分级"的可复现建模。链接：https://1951.mtmt.com.cn/article/id/a4348c05-50c4-4651-a226-3bfa39599970
+4. **（发明专利 CN120415192A）** *基于模型预测控制的双惯量伺服系统齿隙振荡抑制方法*. — 建平滑**齿隙死区模型**（轴转矩—角度差关系）+ **位置误差齿隙观测器**估齿隙等级，按不同等级构造 MPC 预测模型与代价函数主动抑振；是"含齿隙非线性双惯量"直接可抄的工程样例。链接：https://patents.google.com/patent/CN120415192A/en
+
+### 💡 本批「可参考方向」
+- **加权平均偏差耦合补偿器（状态均值偏差耦合拓扑新实现）**：Xu 2025（Symmetry）的 NDCS 用加权平均法优化偏差耦合补偿器，把"各电机速度 vs 系统均值速度"做成加权补偿、配 NSMC + 改进超扭曲电流环——正是本项目"状态均值偏差耦合拓扑（解耦同步与跟踪）"的可抄结构；本科生可在 `control_*` 里把"跟踪误差 + 偏差耦合项"合成加权均值补偿，对比四策略看是否同时改善跟踪与同步。（→ §五 候选点：电控·状态均值偏差耦合拓扑（解耦同步与跟踪））
+- **极值模块动态调耦合（动态耦合增益现成落地）**：IEEE 2025 的"偏差耦合 + 极值(max/min)模块动态调节电机间耦合关系"在突加载时自动切换耦合补偿，正是本项目"动态耦合增益"候选的可抄实现；直接把固定权重换成随偏差极值自适应的开关式增量公式搬进 `control_dcc.c`，对比突加载下固定 vs 极值自适应增益的 RMS 与恢复时间。（→ §五 候选点：电控·动态耦合增益）
+- **多智能体滑模一致 + ESO/模糊滑模观测（DOB 再进阶基线）**：Zhu 2025（METMS）把多 PMSM 化为多智能体、分布式滑模一致 + 滑模扰动观测器前馈，Wu 2025（Physica Scripta）用 ESO + 自适应模糊滑模固定时间收敛并抑抖振，He 2025（PIER M）在双惯量对象上用加速度反馈 + FTESO 进阶——三者把本项目一阶 DOB 升级为"多智能体滑模一致 + 扩张状态滑模观测"进阶基线，且 Zhu 的多智能体框架天然是"事件触发低通信同步"的前置结构。（→ §五 候选点：电控·高阶滑模 + 扩张状态滑模观测（平均偏差耦合进阶））
+- **FFRLS 在线辨识 ω_n 与机械参数 → 自适应陷波（最优先治 g/ω_n=0.30）**：Wang B. 2025（Energies）用遗忘因子递推最小二乘在线同时辨识转子惯量、负载惯量、轴刚度（误差<10%），正好给本项目"据 ω_n 自适应整定陷波"提供机械参数在线来源——直接接进 `sync` 脚本算出的 ω_n，把固定 g=100 换成"在线辨识 Ks/J → 实时整定陷波/有源阻尼"，优先治当前 `g/ω_n=0.30` 欠阻尼缺口。（→ §五 候选点：电控·自适应陷波 / 有源阻尼系统化设计（替代经验定 g））
+- **含齿隙非线性双惯量 + 三惯量降阶（让仿真更贴真实）**：CN120415192A 的"位置误差齿隙观测器 + MPC 分档抑振"给出含齿隙双惯量的可复现建模，制造技术与机床 2026 的"三惯量链降阶 + 静/动刚度准则"给出把双惯量扩成"电机—连接套—工作台"三惯量并量化刚度等效的方法——两者替换本项目线性 Ks-Bs 为含齿隙/多惯量对象，使换向冲击与刚度匹配场景更真，反哺创新点一/二。（→ §五 候选点：机械·含齿隙/摩擦的非线性双惯量模型）；配套（→ §五 候选点：机械·三惯量扩展）
+
+---
+
+## 📅 2026-10-05（每日自动推送）
+
+### 🔌 电控侧（多电机同步 / 先进控制）近期进展 2024–2026
+1. **Sun H., Zhao W., Wang C. et al.** (南京航空航天大学) *Redundant torque synchronization and steering angle tracking strategy for dual three-phase steer-by-wire system*, **Control Engineering Practice**, 2026. — 双三相 PMSM（DTP-PMSM）线控转向系统，提出**均值偏差耦合（mean deviation coupling）+ 小波神经网络补偿器**动态优化偏差耦合结构增益：常态平滑死区包容相位滞后、强扰/故障瞬时激发高协同刚度，消除三冗余电机间转矩异步；实验证快速转矩同步与转向角跟踪提升。DOI:10.1016/j.conengprac.2026.00286
+2. **(Vietnam Aviation Academy)** *Distributed Backstepping Integral Terminal Sliding Mode Control for Consensus Speed Tracking in Networked PMSM Systems*, **Energies**, 2026, 19(18):4438. — 领导-跟随图 + **反向步进积分终端滑模（BITSM）** 一致速度跟踪：q 轴电流环用积分终端滑面、速度环受图加权界约束，有限时间达面、输入-状态稳定（ISS）；四 agent 仿真峰值瞬态转速差降约 83%、稳态 agent 间差降 >90%。DOI:10.3390/en19184438
+3. **(机床与液压 2026)** *螺杆空压机双PMSM改进交叉耦合控制*. — 改进 ADRC + **并行扩张状态观测器（并行 ESO）** + **共模/差模信号分离** + 改进交叉耦合：把外部扰动拆成影响速度跟踪的共模扰动与产生位置偏差的差模扰动，专以改进交叉耦合补偿差模减小两螺杆位置偏差（保障位置偏差 <0.01 rad），是「解耦同步与跟踪」的工程样例。链接：http://www.jcyyy.com.cn/jcyyy/article/abstract/202615011
+4. **(Scientific Reports, Nature 2026)** *Incremental model predictive control of PMSM based on parameter tuning of multi-layer perceptron neural network and disturbance observer*, **Scientific Reports**, 2026. — 提出 **DOB-增量 MPC（DOB-IMPC）**：增量预测模型 + DOB 实时估集总扰动前馈 + **多层感知机（MLP）神经网络在线整定** 关键控制参数；较人工整定 MPC 速度 RMSE 降 46.2%、突加载最大波动再降 31.2%、参数摄动下 RMSE 降 75.8%。DOI:10.1038/s41598-026-55885-z
+
+### ⚙️ 机械侧（双惯量 / 柔性传动 / 谐振 / 设计）近期进展 2024–2026
+1. **Zhang G., Chen C., Zhan Y.** (湖北工业大学) *Vibration Suppression and Notch Filter Design for Flexible Drive System*, **西北工业大学学报**, 2024 (online 2024). — 双惯量柔传系统，引入**参数平面法（parameter plane method）** 解析设计 PI + 陷波器参数（突破传统「同实部/同半径代表极点」经验整定），可据惯量比系统化求阻尼、配陷波中心频率；证实传统陷波有效提升系统稳定性。DOI:10.13433/j.cnki.1003-8728.20240028
+2. **Xie J., Wang X., Zhang J. et al.** *Research on extended high dimensional Melnikov and singularity based on double inertial coupling vibration system*, **Chaos, Solitons & Fractals**, 2026, 209(P1). — 建含多非线性与**分数阶微分项**的双惯量耦合振动 2-DOF 模型，用**扩展高维 Melnikov 法**导出混沌运动临界判据、结合奇异性理论定稳定/不稳定区边界与多稳态路径依赖；揭示分数阶/非线性参数对动力学演化的调控机理，为双惯量系统混沌抑制与参数优化提供理论支撑。DOI:10.1016/j.chaos.2026.118414
+3. **(IEEE 2026)** *Load Position Tracking Control of Two-Inertia Systems via Speed-Predictive Functional Control with Robust Disturbance Compensation*. — 双惯量（TTS）负载位置控制，提出**非线性扰动观测器（NDOB）** 估集总不确定 + **速度预测功能控制（predictive functional control）** 设计速度环，PMSM 实验证负载位置跟踪与抗扰优良；是把「预测控制 + DOB」直接落到双惯量对象的现成基线。链接：https://ieeexplore.ieee.org/document/11317680
+4. **(SpecForge 2026, 行业技术综述)** *AC Servo Motor and Drive Pairing: Inertia Matching Reconsidered for 2026*. — 现代伺服驱动器用**自动整定识别双惯量谐振并放置陷波**，惯量比从「1:1 硬指标」转为灵敏度参数；明确指出「谐振频率必须落在驱动器可陷波范围内」的选型逻辑与 Ks/惯量比→带宽天花板关系。链接：https://www.sourcebyspec.com/news/ac-servo-motor-and-drive-pairing-inertia-matching-reconsidered-for-2026.html
+
+### 💡 本批「可参考方向」
+- **小波神经网络动态耦合增益（最贴合本项目偏差耦合升级）**：Sun 2026（Control Engineering Practice）的「均值偏差耦合 + 小波神经网络补偿器」动态优化结构增益——常态低协同刚度包容相位滞后、强扰瞬时高协同刚度，正是把本项目固定偏差耦合权重升级为随工况自适应的**动态耦合增益**现成实现；直接把固定权重换成随同步误差自适应的增量公式搬进 `control_dcc.c`，对比突加载下固定 vs 小波NN动态增益的 RMS 与恢复时间。（→ §五 候选点：电控·动态耦合增益）
+- **共模/差模分离的偏差耦合（解耦同步与跟踪）**：机床与液压 2026 螺杆空压机文把外部扰动拆成「影响速度跟踪的共模扰动」与「产生位置偏差的差模扰动」、专以改进交叉耦合补偿差模，正好对应 `innovation.md`「状态均值偏差耦合拓扑」的「解耦同步与跟踪」内核——本科生可在 `control_*` 里把跟踪误差与同步误差分别经共模/差模通道处理，对比四策略看是否同时改善跟踪与同步。（→ §五 候选点：电控·状态均值偏差耦合拓扑（解耦同步与跟踪））
+- **预测功能控制 + DOB 落到双惯量（无权重因子快速预测可算版）**：IEEE 2026 双惯量负载位置跟踪文用「非线性 DOB 前馈 + 速度预测功能控制」直接在双惯量对象上做高精度负载位置跟踪，配 Scientific Reports 2026 的 DOB-IMPC（MLP 在线整定、突加载波动降 31.2%）——二者把本项目「模型预测同步」候选从「权重整定难」痛点里解放，且都自带 DOB 前馈、与 DCC+DOB 同构，可先在四电机仿真用虚拟均值电机当协调层试跑。（→ §五 候选点：电控·模型预测同步（无权重因子快速预测））
+- **参数平面法系统化整定陷波（最优先治 `g/ω_n=0.30`）**：Zhang 2024（西北工业大学学报）用参数平面法解析设计 PI+陷波参数、突破「同实部代表极点」经验整定，可据惯量比系统化配陷波中心频率——正把本项目「经验定 g=100」升级为「据 ω_n 系统化整定陷波与有源阻尼」；连同 SpecForge 2026 指出的「现代驱动器自动识别双惯量谐振并放置陷波、谐振须落在可陷波带宽」工程事实，直接补 `g/ω_n=0.30` 欠阻尼缺口，优先做。（→ §五 候选点：电控·自适应陷波 / 有源阻尼系统化设计（替代经验定 g））
+- **分数阶双惯量建模 + 混沌/参数优化（机械侧建模升级）**：Xie 2026（Chaos, Solitons & Fractals）建含分数阶微分项的双惯量耦合振动模型、用扩展 Melnikov 法导出混沌临界与稳定区边界，揭示分数阶/非线性参数对动力学的调控——把本项目线性 Ks-Bs 扩成分数阶并给出可落地参数优化路径，直接支撑「分数阶双惯量系统建模与参数辨识」候选；本科生可先用该文分数阶模型替换整数阶对象，跑三档 Ks 看谐振捕捉是否更贴真实。（→ §五 候选点：机械·分数阶双惯量系统建模与参数辨识）
+
+---
+
+## 📅 2026-10-04（每日自动推送）
+
+### 🔌 电控侧（多电机同步 / 先进控制）近期进展 2024–2026
+1. **Hu G., Xu D., Jiang B., Pan T., Hua W.** *Fixed-Time Cooperative Model-Free Sliding Mode Control for Fractional-Order Multi-Motor Systems*, **IEEE Trans. Automation Science and Engineering**, 2025, 22:22950–22961. — 面向分数阶多电机系统，用**分数阶超局部模型（model-free）** + **固定时间扰动观测器（FTDO）**构建**固定时间协同无模型滑模（FCM-SMC）**；以电机 #1 为参考，相对现有方法误差指标（ME/MAE/RMSE）最高降 64.8% / 70.2% / 69.7%，收敛时间有上界、与初值无关。DOI:10.1109/TASE.2025.3618245
+2. **Hu G., Xu D., Hua W., Jiang B., Shi P., Rudas I.J.** *Fixed-Time Cooperative Sliding Mode Control for Synchronization of Multilinear Motor Systems*, **IEEE/ASME Trans. Mechatronics**, 2025. — 把多直线电机化为多智能体，提出**固定时间协同滑模（FTCSMC）** + **固定时间扰动观测器**实现速度一致；固定通信拓扑下速度一致在固定时间内达成、与初值无关，Lyapunov 证稳定，仿真+实验优于分布式 PI 与有限时间控制。DOI:10.1109/TMECH.2025.3585574
+3. **Chen Y., Liu Y., Huang R., Liu C.** *Data-Driven Speed Synchronization Predictive Control of a Five-Leg VSI Driving Dual-PMSM System*, **IEEE Trans. Industrial Electronics**, 2026, 73(6):8392–8404. — **数据驱动 MPC（DSSPC）**基于特征建模建无参数依赖的一阶电流预测模型，改进 MPC 带占空比调节；用**电流参考补偿直接替代固定增益交叉耦合**消除双 PMSM 同步误差，对参数失配/外扰更鲁棒（© 2026 IEEE）。DOI:10.1109/TIE.2026.3657020
+4. **Wang L., Zhao X., Jin H.** *Multi-motor synchronization control based on neural network adaptive sliding mode and dynamic gain*, **Electrical Engineering (Springer)**, 2026, 108:304. — 提出**动态增益偏差耦合（DGDCC）** + **神经网络最小参数学习自适应滑模（NN-MPLM-ASMC）**：用模型参考辨识（MRIM）实时估 PMSM 惯量、动态调节速度补偿器耦合增益，根治固定增益偏差耦合的同步误差累积；实验证跟踪与同步精度显著提升。DOI:10.1007/s00202-026-03652-8
+
+### ⚙️ 机械侧（双惯量 / 柔性传动 / 谐振 / 设计）近期进展 2024–2026
+1. **Zhu X., Li T., Tan X., Liang C.** *Design of Notch Filters Based on LQR Method for Resonance Suppression in Welding Servo Systems*, **2025 13th IEEE ICCMA**, 2025（入 IEEE Xplore 2026-02）. — 针对双质量系统固有谐振，提出**基于线性二次调节器（LQR）的陷波器系统化设计**：高置信度模型辨识 + 数字时延补偿、并行子系统分解分离谐振模态、cheap control 理论导出最优状态反馈并等价转串级陷波；实验证较常规 PI 与经验调谐陷波器谐振抑制更强、相位裕度更高、变载鲁棒。DOI:10.1109/ICCMA67641.2025.11369499
+2. **Kawasaki M., Sakamoto N., Nakashima A., Kobayashi Y., Tanaka Y.** *An Observer-Based Vibration Suppression Method for Backlash-Induced Oscillations in EV Powertrains*, **IEEE Access**, 2026, 14:57444–57462. — 建含**轴弹性 + 粘滞阻尼 + 齿隙 + 量化噪声 + 通信延时**的控制导向非线性双惯量传动模型，设计**状态观测器**估相对位移与齿隙演化（接触/非接触切换），据此设计角速度阻尼控制（AVDC）与带冲击抑制的 AVDIMC；车辆实验证传动轴扭转转矩峰值约 2000 → 1000 Nm、振动稳定时间约 1.41 → 0.53–0.57 s。DOI:10.1109/ACCESS.2026.3674637
+3. **（谐波齿轮传动柔性双连杆机械臂, 2026）** *谐波齿轮传动的柔性双连杆机械臂定位（解耦定位控制）*, **中文期刊（维普收录, 2026）**. — 建**双连杆三惯量**机械臂物理模型（每关节 = 电机侧 / 谐波齿轮侧 / 连杆侧三惯量经弹簧耦合），用 MIMO 解耦器在 2-DOF 半闭环框架内解耦连杆间耦合转矩并补偿角传动误差；实验证 ±0.1 mm 精度、0.1 s 稳定时间，是「三惯量扩展」的可复现对象。链接：http://dianda.cqvip.com/Qikan/Article/Detail?id=7108354596
+4. **（ISA Transactions 2025）** *Analysis and design of oscillation frequency correction for servo resonance suppression*, **ISA Transactions**, 2025. — 针对双惯量伺服**陷波频率随工况漂移**问题，提出基于系统状态与机械参数的**在线振荡频率校正**方法：弃离线定点整定，用滑动模态观测器网络并行辨识刚度/惯量等、实时修正陷波中心频率，化解「参数变化 → 谐振抑制失效」。链接：https://www.sciencedirect.com/science/article/pii/S001905782500309X
+
+### 💡 本批「可参考方向」
+- **分数阶无模型固定时间滑模，给四策略之外加一类「免模型」新基线**：Hu 2025（TASE）用分数阶超局部模型 + 固定时间扰动观测器做多电机协同无模型滑模，误差指标较现有法最高降约 70%、收敛有上界；可作本项目四策略（尤其 DCC+DOB）的「无模型对照」，呼应 `innovation.md`「无模型自适应预测」方向——本科生先跑仿真对照即可，不必真上分数阶训练。（→ §五 候选点：电控·无模型自适应预测 + 多智能体事件触发）
+- **固定时间滑模一致 + 固定时间 DOB，把 DCC+DOB 收敛「预约化」再进阶**：Hu 2025（TMECH）把多直线电机化为多智能体、FTCSMC + 固定时间 DOB 使速度一致在固定时间内达成且与初值无关，正是把本项目一阶 DOB 升级为「固定时间扰动观测 + 滑模一致」的现成基线，直接呼应创新点一 DOB 再进阶闭环。（→ §五 候选点：电控·高阶滑模 + 扩张状态滑模观测（平均偏差耦合进阶））
+- **数据驱动 MPC 替代固定增益交叉耦合，作「无权重因子快速预测」可算版**：Chen 2026（TIE）用特征建模 + 改进 MPC 占空比调节，并以**电流参考补偿直接替代传统定增益交叉耦合**消除双 PMSM 同步误差、对参数失配更鲁棒——正好把本项目「模型预测同步」候选从「权重整定难」痛点里解放，可先在四电机仿真用「虚拟均值电机」当协调层试跑，再决定是否进实物。（→ §五 候选点：电控·模型预测同步（无权重因子快速预测））
+- **动态增益偏差耦合（DGDCC）是「动态耦合增益」最贴实现锚点**：Wang 2026（Springer）用模型参考辨识实时估 PMSM 惯量、动态调节速度补偿器耦合增益，根治固定增益偏差耦合的同步误差累积，配 NN 自适应滑模抑抖振——正是本项目 `innovation.md`「动态耦合增益」候选的可抄实现；直接把固定权重换成随惯量/同步误差自适应的增量公式搬进 `control_dcc.c`，对比突加载下固定 vs 动态增益的 RMS 与恢复时间。（→ §五 候选点：电控·动态耦合增益）
+- **机械侧三件套（LQR 系统化陷波 + 在线频率校正 + 含齿隙非线性 + 三惯量谐波减速器）合力补 `(g/ω_n=0.30)` 缺口与结构升级**：Zhu 2025 的 LQR 陷波把「经验定 g」升级为「按模型系统化整定」、ISA Trans 2025 的在线振荡频率校正随工况实时修正陷波中心频率——二者直接治本项目当前 `g/ω_n=0.30` 欠阻尼（对应 `innovation.md` ④ 最小验证路径）；Kawasaki 2026 的含齿隙非线性双惯量观测器（EV 传动轴，转矩峰值降约半、稳定时间缩至 0.53 s）可替换本项目线性 Ks-Bs 为含齿隙对象使换向冲击更真；谐波减速器双连杆三惯量解耦（2026）则给「三惯量扩展」提供可复现建模。四者共同把创新点二「带宽-刚度匹配」与机械组刚度分级/三惯量方向落成闭环。（→ §五 候选点：机械·三惯量扩展）
+
+---
+
 ## 📅 2026-10-02（每日自动推送）
 
 ### 🔌 电控侧（多电机同步 / 先进控制）近期进展 2024–2026
