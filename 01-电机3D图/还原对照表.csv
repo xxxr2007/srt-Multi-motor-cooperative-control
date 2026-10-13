@@ -1,0 +1,82 @@
+﻿所在文件夹,改后文件名,还原为原名
+15号图--电机+蜗轮蜗杆减速器（无内部结构） 格式：Creo STP\CREO,motor-flange 电机法兰.prt.1,flangia_motore_9_416_210.prt.1
+15号图--电机+蜗轮蜗杆减速器（无内部结构） 格式：Creo STP\CREO,output-slow-shaft 输出慢轴.prt.1,albero_lento_cavo_63.prt.1
+15号图--电机+蜗轮蜗杆减速器（无内部结构） 格式：Creo STP\CREO,reducer 减速器.prt.1,riduttore_2iv_63_1.prt.1
+15号图--电机+蜗轮蜗杆减速器（无内部结构） 格式：Creo STP\CREO,sealing-ring 密封圈.prt.1,anello_di_tenuta_63.prt.1
+15号图--电机+蜗轮蜗杆减速器（无内部结构） 格式：Creo STP\CREO,shaft-end 轴端.prt.1,estremita_albero_63_1_2.prt.1
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_bearing-spacer 轴承垫片.SLDPRT,1016Z_cale rlt.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_bearing-spacer2 轴承垫片2.SLDPRT,1016Z_cale rlt2.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_body 壳体.SLDPRT,1016Z_corps.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_bottom-cover 底盖.SLDPRT,1016Z_fond.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_brush-guide 碳刷导向座.SLDPRT,1016Z_guide charbon.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_brush-holder 刷架.SLDPRT,1016Z_support collecteur.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_carbon-brush 碳刷.SLDPRT,1016Z_charbon.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_circlip-8 卡簧8.SLDPRT,1016Z_circlip 8.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_commutator-assy 换向器总成.SLDASM,1016Z_collecteur.SLDASM
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_cover-screw-assy 端盖螺钉总成.SLDASM,1016Z_ensemble vis couvercle.SLDASM
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_cross-screw-M5x16 十字螺钉.SLDPRT,1016Z_Vis cruciforme M5 x 16.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_end-cover 端盖.SLDPRT,1016Z_couvercle.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_flange-nut-M8 带座螺母M8.SLDPRT,1016Z_écrou M8 à embase.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_gear-key 齿轮键.SLDPRT,1016Z_clavette pignon.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_lip-seal 唇形密封圈.SLDPRT,1016Z_joint à lèvre.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_lock-washer 防松垫圈.sldprt,1016Z_Rondelle frein - 5.sldprt
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_output-gear-Z88 输出齿轮Z88.SLDPRT,1016Z_roue de sortie Z88.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_output-shaft 输出轴.SLDPRT,1016Z_arbre de sortie.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_output-shaft-assy 输出轴总成.SLDASM,1016Z_ensemble arbre de sortie.SLDASM
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_pinion-Z9 小齿轮Z9.SLDPRT,1016Z_pignon Z9 1_2p.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_power-cable 电源线.SLDPRT,1016Z_câble.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_rotor-assy 转子总成.SLDASM,1016Z_rotor.SLDASM
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_rotor-coil 转子线圈.SLDPRT,1016Z_bobine rotor.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_rotor-commutator 转子换向器.SLDPRT,1016Z_collecteur rotor.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_rotor-core 转子铁芯.SLDPRT,1016Z_fer rotor.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_rotor-shaft 转子轴.SLDPRT,1016Z_axe rotor.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_rubber-bushing 橡胶套.SLDPRT,1016Z_bague caoutchouc.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_screw-M4 螺钉M4.SLDPRT,1016Z_vis M4.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_screw-M4b 螺钉M4b.SLDPRT,1016Z_vis M4b.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_shaft-nose 轴头.SLDPRT,1016Z_nez.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_stator-assy 定子总成.SLDASM,1016Z_stator.SLDASM
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_washer-ISO7092 垫圈.sldprt,1016Z_Rondelle ISO 7092 - 5.sldprt
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_wave-washer25-19 波形垫圈.SLDPRT,1016Z_rondelle ondulée 25-19.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,1016Z_wire-grommet 过线护套.SLDPRT,1016Z_passe fil.SLDPRT
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 solidwoks格式,DC-Motor-MY1016Z 直流电机.SLDASM,Moteur DC - MY1016Z.SLDASM
+1号图--24V 直流电动机 24v-dc-motor-my1016z 格式：SW STEP IGS\三维图 通用STEP IGS格式,DC-Motor-MY1016Z 直流电机.STEP,Moteur DC - MY1016Z.STEP
+29号图--电机 mystery-d2825-5000  格式：SW STP\三维图 solidwoks格式,magnet-1 磁钢1.SLDPRT,magent.SLDPRT
+30号图--步进电机nema_23-stepper-motor 格式：STP SW\三维图 solidwoks格式,Nema front-cover 前端盖.SLDPRT,Nema_frontal tapa.SLDPRT
+30号图--步进电机nema_23-stepper-motor 格式：STP SW\三维图 solidwoks格式,Nema rear-cover 后端盖.SLDPRT,Nema_Rear tapa.SLDPRT
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,ball 钢球.prt,kulka.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,bearing-inner 轴承内圈.prt,lozysko_wew.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,bearing-outer 轴承外圈.prt,lozysko_zew.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,brush-holder 刷握.prt,koszykczek.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,fan 风扇.prt,wiatrak.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,fan-cover 风扇罩.prt,obudowaWiatraka.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,flat-screw-M3x8 平头螺钉.prt,sruba_plaska_M3x8.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,housing-stator 外壳与定子.prt,obudowaiStojan.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,junction-box-bottom 接线盒底座.prt,puszkaSpod.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,junction-box-top 接线盒上盖.prt,puszkaGora.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,key 平键.prt,wpust.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,motor-disc 电机圆盘.prt,tarczaSilnika.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,motor-flange 电机法兰.prt,kolnierzSilnika.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,motor-housing 电机外壳.prt,obudowaSilnika.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,motor-rotor 电机转子.prt,wirnikSilnika.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,motor-shaft 电机轴.prt,wał_silnika.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,rotor-cage 转子笼.prt,klatka_wirnika_MIR.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,rotor-core 转子铁芯.prt,rdzen_wirnika.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,socket-screw-M5x50 内六角螺钉.prt,sruba_imbus_M5x50.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,stator-core 定子铁芯.prt,rdzenStojana.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,winding-2 绕组2.prt,uzwojenie2.prt
+3号图--交流异步电动机 ac-asynchronous-motor 格式：STP IGS STL\三维图 通用 IGS STL STP格式,winding-final 成型绕组.prt,uzwojenie_gotowe.prt
+4号图--交流电动机 格式：SW STP  STL\三维图 solidwoks格式,ac-motor-front 前端盖.SLDPRT,prednji dio ac motor.SLDPRT
+4号图--交流电动机 格式：SW STP  STL\三维图 solidwoks格式,ac-motor-nut 电机螺母.SLDPRT,matica ac motor.SLDPRT
+4号图--交流电动机 格式：SW STP  STL\三维图 solidwoks格式,ac-motor-screw 电机螺钉.SLDPRT,saraf ac motor.SLDPRT
+4号图--交流电动机 格式：SW STP  STL\三维图 solidwoks格式,ac-motor-screw-long 电机长螺钉.SLDPRT,saraf ac motor dugacki.SLDPRT
+4号图--交流电动机 格式：SW STP  STL\三维图 solidwoks格式,ac-motor-washer 电机垫片.SLDPRT,sajba ac motor.SLDPRT
+4号图--交流电动机 格式：SW STP  STL\三维图 solidwoks格式,corak 部件-原名待核实.SLDPRT,corak.SLDPRT
+4号图--交流电动机 格式：SW STP  STL\三维图 solidwoks格式,cover 端盖.SLDPRT,poklopac.SLDPRT
+4号图--交流电动机 格式：SW STP  STL\三维图 solidwoks格式,hook 挂钩.SLDPRT,haken.SLDPRT
+4号图--交流电动机 格式：SW STP  STL\三维图 solidwoks格式,power-cover 电源盖.SLDPRT,poklopac struje.SLDPRT
+4号图--交流电动机 格式：SW STP  STL\三维图 solidwoks格式,ring 挡圈.SLDPRT,prsten.SLDPRT
+4号图--交流电动机 格式：SW STP  STL\三维图 solidwoks格式,wire 导线.SLDPRT,zica.SLDPRT
+4号图--交流电动机 格式：SW STP  STL\三维图 solidwoks格式,wire-2 导线2.SLDPRT,zica 2.SLDPRT
+4号图--交流电动机 格式：SW STP  STL\三维图 solidwoks格式,wire-connector 接线端子.SLDPRT,spajanje zice.SLDPRT
+7号图--无刷电动机  格式：SW STP\三维图 solidwoks格式,magnet-2 磁钢2.SLDPRT,Magnit.SLDPRT
+7号图--无刷电动机  格式：SW STP\三维图 solidwoks格式,mounting 安装座.SLDPRT,Mouting.SLDPRT
