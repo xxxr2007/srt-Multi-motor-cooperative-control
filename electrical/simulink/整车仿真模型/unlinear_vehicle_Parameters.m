@@ -41,3 +41,9 @@ v_obj=100/3.6; %期望车速 m/s
 
 
 
+
+% Four-wheel coefficient aliases used by Tyer constants.
+u_fl = u;
+u_fr = u;
+u_rl = u;
+u_rr = u;
