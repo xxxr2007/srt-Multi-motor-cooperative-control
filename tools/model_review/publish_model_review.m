@@ -13,6 +13,7 @@ for k = 1:numel(manifest.changes)
         continue;
     end
     result = struct('name', entry.native_name, 'success', false, 'report', '', 'error', '', 'warning', '');
+    loadedBefore = find_system('SearchDepth', 0, 'Type', 'block_diagram');
     lastwarn('');
     try
         comparison = visdiff(entry.old, entry.new);
@@ -22,6 +23,18 @@ for k = 1:numel(manifest.changes)
     catch exception
         result.error = getReport(exception, 'extended', 'hyperlinks', 'off');
         failed = true;
+    end
+    clear comparison;
+    % Report publishing can load model/library copies. Release only models
+    % introduced by this comparison; preserve anything the caller had open.
+    loadedAfter = find_system('SearchDepth', 0, 'Type', 'block_diagram');
+    introduced = setdiff(loadedAfter, loadedBefore);
+    for j = 1:numel(introduced)
+        try
+            close_system(introduced{j}, 0);
+        catch
+            % Some dependent libraries may already have been closed.
+        end
     end
     results(end+1) = result; %#ok<AGROW>
 end
