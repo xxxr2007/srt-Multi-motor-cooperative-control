@@ -51,9 +51,3 @@ desktop.ini
 
 # ===== WorkBuddy 项目本地数据（记忆/自动化配置等，非代码）=====
 .workbuddy/
-
-# Generated model review reports and materialized Git/LFS snapshots
-results/model-review/
-
-# Incomplete external resource downloads
-*.qkdownloading
