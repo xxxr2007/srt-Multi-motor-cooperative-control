@@ -1,0 +1,3 @@
+[submodule "motor-control-tutorial"]
+	path = references/motor-control/Design-motor-controllers-with-Simscape-Electrical
+    url = https://github.com/xxxr2007/Design-motor-controllers-with-Simscape-Electrical.git

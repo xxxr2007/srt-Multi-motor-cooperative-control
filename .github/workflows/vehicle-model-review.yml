@@ -1,0 +1,75 @@
+name: Vehicle model review
+
+on:
+  pull_request:
+    paths: ['electrical/simulink/**', 'tools/model_review/**', '.github/workflows/vehicle-model-review.yml']
+  workflow_dispatch:
+    inputs:
+      mine:
+        description: 'My branch/ref (for example main)'
+        default: origin/main
+        required: true
+      theirs:
+        description: 'Teammate branch/ref'
+        default: origin/main
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: model-review-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    env:
+      PYTHONUTF8: '1'
+      MODEL_REVIEW_MANIFEST: ${{ github.workspace }}/results/model-review/ci/manifest.json
+      # PR: mine is the target branch and theirs is the contributor's head.
+      MINE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || inputs.mine }}
+      THEIRS_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.theirs }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          lfs: false
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Test report and LFS adapters
+        run: python -m unittest discover -s tools/model_review/tests -v
+      - name: Prepare separate baseline comparisons
+        run: >-
+          python tools/model_review/review.py
+          --mine "$MINE_REF" --theirs "$THEIRS_REF"
+          --output results/model-review/ci
+      - name: Set up MATLAB R2024b
+        uses: matlab-actions/setup-matlab@v3
+        with:
+          release: R2024b
+          products: Simulink Simulink_Report_Generator
+      - name: Export complete native model reports
+        uses: matlab-actions/run-command@v3
+        with:
+          command: addpath('tools/model_review'); publish_model_review(getenv('MODEL_REVIEW_MANIFEST'))
+      - name: Refresh readable report
+        if: always()
+        run: |
+          if [ -f "$MODEL_REVIEW_MANIFEST" ]; then
+            python tools/model_review/review.py --render "$MODEL_REVIEW_MANIFEST"
+            cat results/model-review/ci/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload report bundle
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: vehicle-model-review-${{ github.run_number }}
+          path: |
+            results/model-review/ci/**
+            !results/model-review/ci/_snapshots/**
+          if-no-files-found: warn
+          retention-days: 30
